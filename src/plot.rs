@@ -98,7 +98,7 @@ pub fn test_plot(show: bool) {
     let y_axis = Axis::new().title(Title::new("Percent")).show_line(false);
 
     let layout = Layout::new()
-        .title(Title::new("r$\\text{Quarter } Q=2023 \\text{ Growth}$"))
+        .title(Title::new("$\\text{Quarter } Q=2023 \\text{ Growth}$"))
         .x_axis(x_axis)
         .y_axis(y_axis);
     let mut plot = Plot::new();
