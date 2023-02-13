@@ -10,19 +10,72 @@ use plotly::common::{
 use plotly::layout::{Axis, BarMode, Layout, Legend, TicksDirection};
 use rand_distr::{Distribution, Normal, Uniform};
 
-pub fn transparent_plot<T: Serialize + Clone + 'static>(x: Vec<T>, y: Vec<T>) {
+pub const PRIMITIVE_GREEN: &str = "rgba(43,186,88,255)";
+pub const PRIMITIVE_BLACK: &str = "rgba(21,23,24,255)";
+pub const PRIMITIVE_WHITE: &str = "rgba(255,255,255,255)";
+pub const PRIMITIVE_GRAY: &str = "rgba(108,112,119,255)";
+pub const PRIMITIVE_BLUE: &str = "rgba(94,132,215,255)";
+pub const PRIMITIVE_PURPLE: &str = "rgba(154,144,242,255)";
+
+pub fn transparent_plot<T: Serialize + Clone + 'static>(x: Vec<T>, y: Vec<T>,  name: String, transparent: bool, show: bool) {
     let mut plot = Plot::new();
-    let trace = Scatter::new(x, y);
+    let trace = Scatter::new(x, y).mode(Mode::Lines)
+    .marker(
+        Marker::new()
+            .color(PRIMITIVE_GREEN)
+            .size(12)
+            .line(Line::new().color(PRIMITIVE_GREEN).width(3.0)),
+    );
     plot.add_trace(trace);
 
-    let layout = plotly::Layout::new()
-        .title(plotly::common::Title::new("Test Plot"))
-        .width(800)
-        .height(600)
-        .plot_background_color("rgba(0,0,0,0)")
-        .paper_background_color("rgba(0,0,0,0)");
-    plot.set_layout(layout);
-    plot.write_image("out.png", ImageFormat::PNG, 800, 600, 1.0);
+    let x_axis = Axis::new()
+        .title(Title::new("$\\text{Reserves } x$"))
+        .show_grid(true)
+        .grid_color(PRIMITIVE_GRAY)
+        .zero_line(false)
+        .color(PRIMITIVE_WHITE)
+        .line_color(PRIMITIVE_WHITE)
+        .tick_prefix(r"$")
+        .tick_suffix(r"$");
+
+    let y_axis = Axis::new()
+        .title(Title::new("$\\text{Reserves } y$"))
+        .show_grid(true)
+        .grid_color(PRIMITIVE_GRAY)
+        .zero_line(false)
+        .show_line(true)
+        .color(PRIMITIVE_WHITE)
+        .line_color(PRIMITIVE_WHITE)
+        .tick_prefix(r"$")
+        .tick_suffix(r"$");
+
+        if transparent{
+            let layout = plotly::Layout::new()
+            .title(plotly::common::Title::new(name.as_str()))
+            .x_axis(x_axis)
+            .y_axis(y_axis)
+            .width(1600)
+            .height(900)
+            .plot_background_color("rgba(0,0,0,0)")
+            .paper_background_color("rgba(0,0,0,0)");
+            plot.set_layout(layout);
+        } else{
+            let layout = plotly::Layout::new()
+            .title(plotly::common::Title::new(name.as_str()))
+            .x_axis(x_axis)
+            .y_axis(y_axis)
+            .width(1600)
+            .height(900)
+            .plot_background_color(PRIMITIVE_BLACK)
+            .paper_background_color(PRIMITIVE_BLACK);
+            plot.set_layout(layout);
+        }
+
+    
+    plot.write_html(name.as_str().to_owned()+".html");
+    if show {
+        plot.show();
+    }    
 }
 
 pub fn test_plot(show: bool) {
