@@ -1,16 +1,8 @@
-use std::fmt::format;
-
-use plotly::{ImageFormat, Plot, Scatter};
-use rand::Rng;
+use plotly::{Plot, Scatter};
 use serde::ser::Serialize;
-
 use itertools_num::linspace;
-use plotly::color::{NamedColor, Rgb, Rgba};
-use plotly::common::{
-    ColorScale, ColorScalePalette, DashType, Fill, Font, Line, LineShape, Marker, Mode, Title, Pad,
-};
-use plotly::layout::{Axis, BarMode, Layout, Legend, TicksDirection};
-use rand_distr::{Distribution, Normal, Uniform};
+use plotly::{color::{NamedColor, Rgb},common::{Font, Line, Marker, Mode, Title},layout::{Axis, Layout, Legend}};
+use rand_distr::{Distribution, Normal};
 
 pub const PRIMITIVE_GREEN: &str = "rgba(43,186,88,255)";
 pub const PRIMITIVE_BLACK: &str = "rgba(21,23,24,255)";
