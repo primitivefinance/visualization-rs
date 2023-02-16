@@ -6,7 +6,7 @@ mod functions;
 fn main() {
 
     // Plot RMM trading curve from a list of prices
-    let name = "rmm_trading_curve".to_string();
+    let name = "RMM Trading Curve".to_string();
     let K = 10_f64;
     let sigma = 0.6_f64;
     let tau = 3.5_f64;

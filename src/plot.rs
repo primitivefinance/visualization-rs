@@ -1,3 +1,5 @@
+use std::fmt::format;
+
 use plotly::{ImageFormat, Plot, Scatter};
 use rand::Rng;
 use serde::ser::Serialize;
@@ -5,7 +7,7 @@ use serde::ser::Serialize;
 use itertools_num::linspace;
 use plotly::color::{NamedColor, Rgb, Rgba};
 use plotly::common::{
-    ColorScale, ColorScalePalette, DashType, Fill, Font, Line, LineShape, Marker, Mode, Title,
+    ColorScale, ColorScalePalette, DashType, Fill, Font, Line, LineShape, Marker, Mode, Title, Pad,
 };
 use plotly::layout::{Axis, BarMode, Layout, Legend, TicksDirection};
 use rand_distr::{Distribution, Normal, Uniform};
@@ -25,21 +27,23 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(x: Vec<T>, y: Vec<T>,  n
             .color(PRIMITIVE_GREEN)
             .size(12)
             .line(Line::new().color(PRIMITIVE_GREEN).width(3.0)),
-    );
+    ).name("$\\varphi(x,y;K=10,\\sigma=0.6,\\tau=3.5)$");
     plot.add_trace(trace);
 
     let x_axis = Axis::new()
-        .title(Title::new("$\\text{Reserves } x$"))
+        .title(Title::new("$\\text{Reserves } x$").font(Font::new().size(24)))
         .show_grid(true)
         .grid_color(PRIMITIVE_GRAY)
         .zero_line(false)
         .color(PRIMITIVE_WHITE)
         .line_color(PRIMITIVE_WHITE)
         .tick_prefix(r"$")
-        .tick_suffix(r"$");
+        .tick_suffix(r"$")
+        .tick_font(Font::new().size(24))
+        .auto_margin(false);
 
     let y_axis = Axis::new()
-        .title(Title::new("$\\text{Reserves } y$"))
+        .title(Title::new("$\\text{Reserves } y$").font(Font::new().size(24)))
         .show_grid(true)
         .grid_color(PRIMITIVE_GRAY)
         .zero_line(false)
@@ -47,8 +51,11 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(x: Vec<T>, y: Vec<T>,  n
         .color(PRIMITIVE_WHITE)
         .line_color(PRIMITIVE_WHITE)
         .tick_prefix(r"$")
-        .tick_suffix(r"$");
+        .tick_suffix(r"$")
+        .tick_font(Font::new().size(24))
+        .auto_margin(false);
 
+        let title_text = format!("$\\text{{RMM Trading Function}} $");
         if transparent{
             let layout = plotly::Layout::new()
             .title(plotly::common::Title::new(name.as_str()))
@@ -57,17 +64,20 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(x: Vec<T>, y: Vec<T>,  n
             .width(1600)
             .height(900)
             .plot_background_color("rgba(0,0,0,0)")
-            .paper_background_color("rgba(0,0,0,0)");
+            .paper_background_color("rgba(0,0,0,0)")
+            .show_legend(true);
             plot.set_layout(layout);
         } else{
             let layout = plotly::Layout::new()
-            .title(plotly::common::Title::new(name.as_str()))
+            .title(plotly::common::Title::new(&title_text).font(Font::new().color(PRIMITIVE_WHITE)))
             .x_axis(x_axis)
             .y_axis(y_axis)
             .width(1600)
             .height(900)
             .plot_background_color(PRIMITIVE_BLACK)
-            .paper_background_color(PRIMITIVE_BLACK);
+            .paper_background_color(PRIMITIVE_BLACK)
+            .show_legend(true)
+            .legend(Legend::new().font(Font::new().color(PRIMITIVE_WHITE).size(24)).x(0.50).y(0.50).background_color("rgba(0,0,0,0)"));
             plot.set_layout(layout);
         }
 
