@@ -55,7 +55,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(x: Vec<T>, y: Vec<T>,  n
         .tick_font(Font::new().size(24))
         .auto_margin(false);
 
-        let title_text = format!("$\\text{{RMM Trading Function}} $");
+        let title_text = format!("{} {} {} {}", "$", "\\text{", name, "}$");
         if transparent{
             let layout = plotly::Layout::new()
             .title(plotly::common::Title::new(name.as_str()))
