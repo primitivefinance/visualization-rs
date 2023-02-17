@@ -1,4 +1,4 @@
-use plotly::{Plot, Scatter};
+use plotly::{Plot, Scatter, layout::Margin};
 use serde::ser::Serialize;
 use itertools_num::linspace;
 use plotly::{color::{NamedColor, Rgb},common::{Font, Line, Marker, Mode, Title},layout::{Axis, Layout, Legend}};
@@ -12,14 +12,19 @@ pub const PRIMITIVE_BLUE: &str = "rgba(94,132,215,255)";
 pub const PRIMITIVE_PURPLE: &str = "rgba(154,144,242,255)";
 
 pub fn transparent_plot<T: Serialize + Clone + 'static>(x: Vec<T>, y: Vec<T>,  name: String, transparent: bool, show: bool) {
+    let K = 10_f64;
+    let sigma = 0.6_f64;
+    let tau = 3.5_f64;
+    
     let mut plot = Plot::new();
+    let legend_text = format!("{} {} {} {} {} {} {} {}", "$", "\\varphi(x,y;K=", K, ",\\sigma=", sigma, ",\\tau=", tau ,"$");
     let trace = Scatter::new(x, y).mode(Mode::Lines)
     .marker(
         Marker::new()
             .color(PRIMITIVE_GREEN)
             .size(12)
             .line(Line::new().color(PRIMITIVE_GREEN).width(3.0)),
-    ).name("$\\varphi(x,y;K=10,\\sigma=0.6,\\tau=3.5)$");
+    ).name(legend_text);
     plot.add_trace(trace);
 
     let x_axis = Axis::new()
@@ -69,10 +74,9 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(x: Vec<T>, y: Vec<T>,  n
             .plot_background_color(PRIMITIVE_BLACK)
             .paper_background_color(PRIMITIVE_BLACK)
             .show_legend(true)
-            .legend(Legend::new().font(Font::new().color(PRIMITIVE_WHITE).size(24)).x(0.50).y(0.50).background_color("rgba(0,0,0,0)"));
+            .legend(Legend::new().font(Font::new().color(PRIMITIVE_WHITE).size(24)).x(0.50).y(0.50).background_color("rgba(0,0,0,0)").border_width(0)).margin(Margin::new().bottom(100).left(100));
             plot.set_layout(layout);
         }
-
     
     plot.write_html(name.as_str().to_owned()+".html");
     if show {
