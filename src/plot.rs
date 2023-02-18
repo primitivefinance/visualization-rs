@@ -59,7 +59,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
                             .size(12)
                             .line(Line::new().color(PRIMITIVE_GREENS[i]).width(5.0)),
                     )
-                    .name("$\\Phi(x)$");
+                    .name("$\\exp\\left(-x^2\\right)$");
                 plot.add_trace(trace);
             }
             1 => {
@@ -71,7 +71,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
                             .size(12)
                             .line(Line::new().color(PRIMITIVE_BLUES[i]).width(5.0)),
                     )
-                    .name("$\\frac{1}{1+x^2}$");
+                    .name("$\\displaystyle{\\frac{1}{1+x^2}}$");
                 plot.add_trace(trace);
             }
             2 => {
@@ -148,7 +148,8 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
                     .y(0.50)
                     .background_color("rgba(0,0,0,0)")
                     .border_width(0)
-                    .orientation(plotly::common::Orientation::Vertical),
+                    .orientation(plotly::common::Orientation::Vertical)
+                    .trace_group_gap(10),
             )
             .margin(Margin::new().bottom(100).left(100).top(100).right(100));
         plot.set_layout(layout);
