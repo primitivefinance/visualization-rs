@@ -31,6 +31,7 @@ pub fn d_two(x: Vec<f64>, K: f64, sigma: f64, tau: f64) -> Vec<f64> {
     v
 }
 
+// TODO: Rewrite as R_x and R_y functions so that we can use closures the same way in main.rs
 pub fn rmm_trading_curve(prices: Vec<f64>, K: f64, sigma: f64, tau: f64) -> (Vec<f64>, Vec<f64>) {
     let n = prices.len();
     let (mut x, mut y) = (Vec::with_capacity(n), Vec::with_capacity(n));
@@ -44,22 +45,21 @@ pub fn rmm_trading_curve(prices: Vec<f64>, K: f64, sigma: f64, tau: f64) -> (Vec
     (x, y)
 }
 
-pub fn standard_gaussian_cdf(x: Vec<f64>) -> (Vec<f64>, Vec<f64>) {
+pub fn standard_gaussian_cdf(x: Vec<f64>) -> Vec<f64> {
     let normal = NormalDist::new(0.0, 1.0).unwrap();
     let n = x.len();
     let mut y = Vec::with_capacity(n);
     for i in 0..n {
         y.push(normal.cdf(x[i]));
     }
-    (x, y)
+    y
 }
 
-pub fn standard_gaussian_pdf(x: Vec<f64>) -> (Vec<f64>, Vec<f64>) {
-    let normal = NormalDist::new(0.0, 1.0).unwrap();
+pub fn standard_gaussian_pdf(x: Vec<f64>) -> Vec<f64> {
     let n = x.len();
     let mut y = Vec::with_capacity(n);
     for i in 0..n {
         y.push((-0.5 * x[i] * x[i]).exp() / (consts::SQRT_2PI));
     }
-    (x, y)
+    y
 }

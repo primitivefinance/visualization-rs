@@ -36,59 +36,88 @@ pub const PRIMITIVE_BLACK: &str = "rgba(21,23,24,255)";
 pub const PRIMITIVE_WHITE: &str = "rgba(255,255,255,255)";
 
 pub fn transparent_plot<T: Serialize + Clone + 'static>(
-    x: Vec<T>,
-    y: Vec<T>,
+    x: Vec<Vec<T>>,
+    y: Vec<Vec<T>>,
+    x_bounds: Vec<f64>,
+    y_bounds: Vec<f64>,
     name: String,
     transparent: bool,
     show: bool,
 ) {
-    let K = 10_f64;
-    let sigma = 0.6_f64;
-    let tau = 3.5_f64;
 
     let mut plot = Plot::new();
-    let legend_text = format!(
-        "{} {} {} {} {} {} {} {}",
-        "$", "\\Phi(x)", K, ",\\sigma=", sigma, ",\\tau=", tau, ")\\text{~~~}$"
-    );
 
-    for i in 0..3 {
-        let trace = Scatter::new(x.clone(), y.clone())
-            .mode(Mode::Lines)
-            .marker(
-                Marker::new()
-                    .color(PRIMITIVE_GREENS[i])
-                    .size(12)
-                    .line(Line::new().color(PRIMITIVE_GREENS[i]).width(3.0)),
-            )
-            .name(legend_text.clone());
-        plot.add_trace(trace);
+    for i in 0..x.len() {
+        let number = i % 3;
+        match number {
+            0 => {
+                let trace = Scatter::new(x[i].clone(), y[i].clone())
+                    .mode(Mode::Lines)
+                    .marker(
+                        Marker::new()
+                            .color(PRIMITIVE_GREEN)
+                            .size(12)
+                            .line(Line::new().color(PRIMITIVE_GREENS[i]).width(5.0)),
+                    )
+                    .name("$\\Phi(x)$");
+                plot.add_trace(trace);
+            }
+            1 => {
+                let trace = Scatter::new(x[i].clone(), y[i].clone())
+                    .mode(Mode::Lines)
+                    .marker(
+                        Marker::new()
+                            .color(PRIMITIVE_BLUE)
+                            .size(12)
+                            .line(Line::new().color(PRIMITIVE_BLUES[i]).width(5.0)),
+                    )
+                    .name("$\\frac{1}{1+x^2}$");
+                plot.add_trace(trace);
+            }
+            2 => {
+                let trace = Scatter::new(x[i].clone(), y[i].clone())
+                    .mode(Mode::Lines)
+                    .marker(
+                        Marker::new()
+                            .color(PRIMITIVE_PURPLE)
+                            .size(12)
+                            .line(Line::new().color(PRIMITIVE_PURPLES[i]).width(5.0)),
+                    )
+                    .name("$1-x^2 \\qquad .$");
+                plot.add_trace(trace);
+            }
+            _ => {}
+        }
+        // let trace = Scatter::new(x[i].clone(), y[i].clone())
+        //     .mode(Mode::Lines)
+        //     .marker(
+        //         Marker::new()
+        //             .color(PRIMITIVE_GREENS[i])
+        //             .size(12)
+        //             .line(Line::new().color(PRIMITIVE_GREENS[i]).width(3.0)),
+        //     )
+        //     .name(legend_text.clone());
+        // plot.add_trace(trace);
     }
-    // let trace = Scatter::new(x, y).mode(Mode::Lines)
-    // .marker(
-    //     Marker::new()
-    //         .color(PRIMITIVE_GREEN)
-    //         .size(12)
-    //         .line(Line::new().color(PRIMITIVE_GREEN).width(3.0)),
-    // ).name(legend_text);
-    // plot.add_trace(trace);
 
     let x_axis = Axis::new()
-        .title(Title::new("$\\text{Reserves } x$").font(Font::new().size(24)))
+        .title(Title::new("$x$").font(Font::new().size(24)))
         .show_grid(true)
-        .grid_color(PRIMITIVE_GRAY)
+        .grid_color(PRIMITIVE_GREY)
         .zero_line(false)
         .color(PRIMITIVE_WHITE)
         .line_color(PRIMITIVE_WHITE)
         .tick_prefix(r"$")
         .tick_suffix(r"$")
         .tick_font(Font::new().size(24))
-        .auto_margin(false);
+        .auto_margin(false)
+        .range(x_bounds)
+        .ticks(plotly::layout::TicksDirection::Outside);
 
     let y_axis = Axis::new()
-        .title(Title::new("$\\text{Reserves } y$").font(Font::new().size(24)))
+        .title(Title::new("$y$").font(Font::new().size(24)))
         .show_grid(true)
-        .grid_color(PRIMITIVE_GRAY)
+        .grid_color(PRIMITIVE_GREY)
         .zero_line(false)
         .show_line(true)
         .color(PRIMITIVE_WHITE)
@@ -96,7 +125,9 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
         .tick_prefix(r"$")
         .tick_suffix(r"$")
         .tick_font(Font::new().size(24))
-        .auto_margin(false);
+        .auto_margin(false)
+        .range(y_bounds)
+        .ticks(plotly::layout::TicksDirection::Outside);
 
     // let title_text = format!("{} {} {} {}", "$", "\\text{", name, "}$");
     let title_text = "";
@@ -116,7 +147,8 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
                     .x(0.50)
                     .y(0.50)
                     .background_color("rgba(0,0,0,0)")
-                    .border_width(0),
+                    .border_width(0)
+                    .orientation(plotly::common::Orientation::Vertical),
             )
             .margin(Margin::new().bottom(100).left(100).top(100).right(100));
         plot.set_layout(layout);
@@ -133,10 +165,11 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
             .legend(
                 Legend::new()
                     .font(Font::new().color(PRIMITIVE_WHITE).size(24))
-                    .x(0.50)
-                    .y(0.50)
+                    .x(0.75)
+                    .y(0.75)
                     .background_color("rgba(0,0,0,0)")
-                    .border_width(0),
+                    .border_width(0)
+                    .orientation(plotly::common::Orientation::Vertical),
             )
             .margin(Margin::new().bottom(100).left(100).top(100).right(100));
         plot.set_layout(layout);
@@ -178,7 +211,7 @@ pub fn trading_curve_plot<T: Serialize + Clone + 'static>(
     let x_axis = Axis::new()
         .title(Title::new("$\\text{Reserves } x$").font(Font::new().size(24)))
         .show_grid(true)
-        .grid_color(PRIMITIVE_GRAY)
+        .grid_color(PRIMITIVE_GREY)
         .zero_line(false)
         .color(PRIMITIVE_WHITE)
         .line_color(PRIMITIVE_WHITE)
@@ -190,7 +223,7 @@ pub fn trading_curve_plot<T: Serialize + Clone + 'static>(
     let y_axis = Axis::new()
         .title(Title::new("$\\text{Reserves } y$").font(Font::new().size(24)))
         .show_grid(true)
-        .grid_color(PRIMITIVE_GRAY)
+        .grid_color(PRIMITIVE_GREY)
         .zero_line(false)
         .show_line(true)
         .color(PRIMITIVE_WHITE)
