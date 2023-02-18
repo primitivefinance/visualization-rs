@@ -17,7 +17,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(x: Vec<T>, y: Vec<T>,  n
     let tau = 3.5_f64;
     
     let mut plot = Plot::new();
-    let legend_text = format!("{} {} {} {} {} {} {} {}", "$", "\\varphi(x,y;K=", K, ",\\sigma=", sigma, ",\\tau=", tau ,"$");
+    let legend_text = format!("{} {} {} {} {} {} {} {}", "$", "\\varphi(x,y;K=", K, ",\\sigma=", sigma, ",\\tau=", tau ,")\\text{~~~}$");
     let trace = Scatter::new(x, y).mode(Mode::Lines)
     .marker(
         Marker::new()
@@ -52,7 +52,8 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(x: Vec<T>, y: Vec<T>,  n
         .tick_font(Font::new().size(24))
         .auto_margin(false);
 
-        let title_text = format!("{} {} {} {}", "$", "\\text{", name, "}$");
+        // let title_text = format!("{} {} {} {}", "$", "\\text{", name, "}$");
+        let title_text = "";
         if transparent{
             let layout = plotly::Layout::new()
             .title(plotly::common::Title::new(name.as_str()))
@@ -62,7 +63,9 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(x: Vec<T>, y: Vec<T>,  n
             .height(900)
             .plot_background_color("rgba(0,0,0,0)")
             .paper_background_color("rgba(0,0,0,0)")
-            .show_legend(true);
+            .show_legend(true)
+            .legend(Legend::new().font(Font::new().color(PRIMITIVE_WHITE).size(24)).x(0.50).y(0.50).background_color("rgba(0,0,0,0)").border_width(0))
+            .margin(Margin::new().bottom(100).left(100).top(100).right(100));
             plot.set_layout(layout);
         } else{
             let layout = plotly::Layout::new()
@@ -74,7 +77,8 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(x: Vec<T>, y: Vec<T>,  n
             .plot_background_color(PRIMITIVE_BLACK)
             .paper_background_color(PRIMITIVE_BLACK)
             .show_legend(true)
-            .legend(Legend::new().font(Font::new().color(PRIMITIVE_WHITE).size(24)).x(0.50).y(0.50).background_color("rgba(0,0,0,0)").border_width(0)).margin(Margin::new().bottom(100).left(100));
+            .legend(Legend::new().font(Font::new().color(PRIMITIVE_WHITE).size(24)).x(0.50).y(0.50).background_color("rgba(0,0,0,0)").border_width(0))
+            .margin(Margin::new().bottom(100).left(100).top(100).right(100));
             plot.set_layout(layout);
         }
     
