@@ -1,30 +1,178 @@
-use plotly::{Plot, Scatter, layout::Margin};
-use serde::ser::Serialize;
 use itertools_num::linspace;
-use plotly::{color::{NamedColor, Rgb},common::{Font, Line, Marker, Mode, Title},layout::{Axis, Layout, Legend}};
+use plotly::{
+    color::{NamedColor, Rgb},
+    common::{Font, Line, Marker, Mode, Title},
+    layout::{Axis, Layout, Legend},
+};
+use plotly::{layout::Margin, Plot, Scatter};
 use rand_distr::{Distribution, Normal};
+use serde::ser::Serialize;
 
 pub const PRIMITIVE_GREEN: &str = "rgba(43,186,88,255)";
+pub const PRIMITIVE_GREENS: [&str; 10] = [
+    "E1FDEA", "BCF2CD", "95E8AF", "6CDD90", "45D471", "2BBA58", "1F9143", "136730", "063F1A",
+    "001703",
+];
+
+pub const PRIMITIVE_BLUE: &str = "rgba(94,132,215,255)";
+pub const PRIMITIVE_BLUES: [&str; 10] = [
+    "C2E8FF", "AED4FF", "9AC0FF", "86ACFF", "7298EB", "5E84D7", "4A70C3", "365CAF", "22489B",
+    "002073",
+];
+
+pub const PRIMITIVE_PURPLE: &str = "rgba(154,144,242,255)";
+pub const PRIMITIVE_PURPLES: [&str; 10] = [
+    "FEF4FF", "EAE0FF", "D6CCFF", "C2B8FF", "AEA4FF", "9A90F2", "867CDE", "7268CA", "5E54B6",
+    "362C8E",
+];
+
+pub const PRIMITIVE_GREY: &str = "rgba(108,112,119,255)";
+pub const PRIMITIVE_GREYS: [&str; 10] = [
+    "F1F1FC", "D6D8DF", "BBBEC3", "A2A4AA", "878A91", "6D7077", "55575E", "3D3E44", "23252B",
+    "0B0B15",
+];
+
 pub const PRIMITIVE_BLACK: &str = "rgba(21,23,24,255)";
 pub const PRIMITIVE_WHITE: &str = "rgba(255,255,255,255)";
-pub const PRIMITIVE_GRAY: &str = "rgba(108,112,119,255)";
-pub const PRIMITIVE_BLUE: &str = "rgba(94,132,215,255)";
-pub const PRIMITIVE_PURPLE: &str = "rgba(154,144,242,255)";
 
-pub fn transparent_plot<T: Serialize + Clone + 'static>(x: Vec<T>, y: Vec<T>,  name: String, transparent: bool, show: bool) {
+pub fn transparent_plot<T: Serialize + Clone + 'static>(
+    x: Vec<T>,
+    y: Vec<T>,
+    name: String,
+    transparent: bool,
+    show: bool,
+) {
     let K = 10_f64;
     let sigma = 0.6_f64;
     let tau = 3.5_f64;
-    
+
     let mut plot = Plot::new();
-    let legend_text = format!("{} {} {} {} {} {} {} {}", "$", "\\varphi(x,y;K=", K, ",\\sigma=", sigma, ",\\tau=", tau ,")\\text{~~~}$");
-    let trace = Scatter::new(x, y).mode(Mode::Lines)
-    .marker(
-        Marker::new()
-            .color(PRIMITIVE_GREEN)
-            .size(12)
-            .line(Line::new().color(PRIMITIVE_GREEN).width(3.0)),
-    ).name(legend_text);
+    let legend_text = format!(
+        "{} {} {} {} {} {} {} {}",
+        "$", "\\Phi(x)", K, ",\\sigma=", sigma, ",\\tau=", tau, ")\\text{~~~}$"
+    );
+
+    for i in 0..3 {
+        let trace = Scatter::new(x.clone(), y.clone())
+            .mode(Mode::Lines)
+            .marker(
+                Marker::new()
+                    .color(PRIMITIVE_GREENS[i])
+                    .size(12)
+                    .line(Line::new().color(PRIMITIVE_GREENS[i]).width(3.0)),
+            )
+            .name(legend_text.clone());
+        plot.add_trace(trace);
+    }
+    // let trace = Scatter::new(x, y).mode(Mode::Lines)
+    // .marker(
+    //     Marker::new()
+    //         .color(PRIMITIVE_GREEN)
+    //         .size(12)
+    //         .line(Line::new().color(PRIMITIVE_GREEN).width(3.0)),
+    // ).name(legend_text);
+    // plot.add_trace(trace);
+
+    let x_axis = Axis::new()
+        .title(Title::new("$\\text{Reserves } x$").font(Font::new().size(24)))
+        .show_grid(true)
+        .grid_color(PRIMITIVE_GRAY)
+        .zero_line(false)
+        .color(PRIMITIVE_WHITE)
+        .line_color(PRIMITIVE_WHITE)
+        .tick_prefix(r"$")
+        .tick_suffix(r"$")
+        .tick_font(Font::new().size(24))
+        .auto_margin(false);
+
+    let y_axis = Axis::new()
+        .title(Title::new("$\\text{Reserves } y$").font(Font::new().size(24)))
+        .show_grid(true)
+        .grid_color(PRIMITIVE_GRAY)
+        .zero_line(false)
+        .show_line(true)
+        .color(PRIMITIVE_WHITE)
+        .line_color(PRIMITIVE_WHITE)
+        .tick_prefix(r"$")
+        .tick_suffix(r"$")
+        .tick_font(Font::new().size(24))
+        .auto_margin(false);
+
+    // let title_text = format!("{} {} {} {}", "$", "\\text{", name, "}$");
+    let title_text = "";
+    if transparent {
+        let layout = plotly::Layout::new()
+            .title(plotly::common::Title::new(name.as_str()))
+            .x_axis(x_axis)
+            .y_axis(y_axis)
+            .width(1600)
+            .height(900)
+            .plot_background_color("rgba(0,0,0,0)")
+            .paper_background_color("rgba(0,0,0,0)")
+            .show_legend(true)
+            .legend(
+                Legend::new()
+                    .font(Font::new().color(PRIMITIVE_WHITE).size(24))
+                    .x(0.50)
+                    .y(0.50)
+                    .background_color("rgba(0,0,0,0)")
+                    .border_width(0),
+            )
+            .margin(Margin::new().bottom(100).left(100).top(100).right(100));
+        plot.set_layout(layout);
+    } else {
+        let layout = plotly::Layout::new()
+            .title(plotly::common::Title::new(&title_text).font(Font::new().color(PRIMITIVE_WHITE)))
+            .x_axis(x_axis)
+            .y_axis(y_axis)
+            .width(1600)
+            .height(900)
+            .plot_background_color(PRIMITIVE_BLACK)
+            .paper_background_color(PRIMITIVE_BLACK)
+            .show_legend(true)
+            .legend(
+                Legend::new()
+                    .font(Font::new().color(PRIMITIVE_WHITE).size(24))
+                    .x(0.50)
+                    .y(0.50)
+                    .background_color("rgba(0,0,0,0)")
+                    .border_width(0),
+            )
+            .margin(Margin::new().bottom(100).left(100).top(100).right(100));
+        plot.set_layout(layout);
+    }
+
+    plot.write_html(name.as_str().to_owned() + ".html");
+    if show {
+        plot.show();
+    }
+}
+
+pub fn trading_curve_plot<T: Serialize + Clone + 'static>(
+    x: Vec<T>,
+    y: Vec<T>,
+    name: String,
+    transparent: bool,
+    show: bool,
+) {
+    let K = 10_f64;
+    let sigma = 0.6_f64;
+    let tau = 3.5_f64;
+
+    let mut plot = Plot::new();
+    let legend_text = format!(
+        "{} {} {} {} {} {} {} {}",
+        "$", "\\varphi(x,y;K=", K, ",\\sigma=", sigma, ",\\tau=", tau, ")\\text{~~~}$"
+    );
+    let trace = Scatter::new(x, y)
+        .mode(Mode::Lines)
+        .marker(
+            Marker::new()
+                .color(PRIMITIVE_GREENS[0])
+                .size(12)
+                .line(Line::new().color(PRIMITIVE_GREENS[0]).width(3.0)),
+        )
+        .name(legend_text);
     plot.add_trace(trace);
 
     let x_axis = Axis::new()
@@ -52,10 +200,10 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(x: Vec<T>, y: Vec<T>,  n
         .tick_font(Font::new().size(24))
         .auto_margin(false);
 
-        // let title_text = format!("{} {} {} {}", "$", "\\text{", name, "}$");
-        let title_text = "";
-        if transparent{
-            let layout = plotly::Layout::new()
+    // let title_text = format!("{} {} {} {}", "$", "\\text{", name, "}$");
+    let title_text = "";
+    if transparent {
+        let layout = plotly::Layout::new()
             .title(plotly::common::Title::new(name.as_str()))
             .x_axis(x_axis)
             .y_axis(y_axis)
@@ -64,11 +212,18 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(x: Vec<T>, y: Vec<T>,  n
             .plot_background_color("rgba(0,0,0,0)")
             .paper_background_color("rgba(0,0,0,0)")
             .show_legend(true)
-            .legend(Legend::new().font(Font::new().color(PRIMITIVE_WHITE).size(24)).x(0.50).y(0.50).background_color("rgba(0,0,0,0)").border_width(0))
+            .legend(
+                Legend::new()
+                    .font(Font::new().color(PRIMITIVE_WHITE).size(24))
+                    .x(0.50)
+                    .y(0.50)
+                    .background_color("rgba(0,0,0,0)")
+                    .border_width(0),
+            )
             .margin(Margin::new().bottom(100).left(100).top(100).right(100));
-            plot.set_layout(layout);
-        } else{
-            let layout = plotly::Layout::new()
+        plot.set_layout(layout);
+    } else {
+        let layout = plotly::Layout::new()
             .title(plotly::common::Title::new(&title_text).font(Font::new().color(PRIMITIVE_WHITE)))
             .x_axis(x_axis)
             .y_axis(y_axis)
@@ -77,15 +232,22 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(x: Vec<T>, y: Vec<T>,  n
             .plot_background_color(PRIMITIVE_BLACK)
             .paper_background_color(PRIMITIVE_BLACK)
             .show_legend(true)
-            .legend(Legend::new().font(Font::new().color(PRIMITIVE_WHITE).size(24)).x(0.50).y(0.50).background_color("rgba(0,0,0,0)").border_width(0))
+            .legend(
+                Legend::new()
+                    .font(Font::new().color(PRIMITIVE_WHITE).size(24))
+                    .x(0.50)
+                    .y(0.50)
+                    .background_color("rgba(0,0,0,0)")
+                    .border_width(0),
+            )
             .margin(Margin::new().bottom(100).left(100).top(100).right(100));
-            plot.set_layout(layout);
-        }
-    
-    plot.write_html(name.as_str().to_owned()+".html");
+        plot.set_layout(layout);
+    }
+
+    plot.write_html(name.as_str().to_owned() + ".html");
     if show {
         plot.show();
-    }    
+    }
 }
 
 pub fn test_plot(show: bool) {
@@ -177,7 +339,6 @@ pub fn test_plot(show: bool) {
         "{}",
         plot.to_inline_html(Some("colored_and_styled_scatter_plot"))
     );
-
 }
 
 pub fn line_and_scatter_plots(show: bool) {
