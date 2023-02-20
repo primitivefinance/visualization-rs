@@ -164,7 +164,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
                 let trace = Scatter::new(x[i].clone(), y[i].clone())
                     .mode(Mode::Lines)
                     .line(Line::new().color(PRIMITIVE_PURPLE).width(2.0))
-                    .name("$1-x^2 \\qquad .$");
+                    .name("$1-x^2$");
                 plot.add_trace(trace);
             }
             1 => {
