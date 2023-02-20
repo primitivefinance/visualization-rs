@@ -35,6 +35,117 @@ pub const PRIMITIVE_GREYS: [&str; 10] = [
 pub const PRIMITIVE_BLACK: &str = "rgba(21,23,24,255)";
 pub const PRIMITIVE_WHITE: &str = "rgba(255,255,255,255)";
 
+pub fn transparent_plot_again<T: Serialize + Clone + 'static>(
+    x: Vec<Vec<T>>,
+    y: Vec<Vec<T>>,
+    x_bounds: Vec<f64>,
+    y_bounds: Vec<f64>,
+    name: String,
+    names: Vec<String>,
+    transparent: bool,
+    show: bool,
+) {
+
+    let mut plot = Plot::new();
+
+    for i in 0..x.len()-1 {
+                let trace = Scatter::new(x[i].clone(), y[i].clone())
+                    .mode(Mode::Lines)
+                    .line(Line::new().color(PRIMITIVE_PURPLES[i]).width(2.0))
+                    .name(format!("${} {} {}", "\\text{", {names[i].clone()}, "}$"));
+                plot.add_trace(trace);
+            
+    }
+    let trace = Scatter::new(x[x.len()-1].clone(), y[x.len()-1].clone())
+                    .mode(Mode::Lines)
+                    .line(Line::new().color(PRIMITIVE_GREEN).width(4.0))
+                    .name("$\\exp\\left(-x^2\\right)\\quad .$");
+                plot.add_trace(trace);
+
+    let x_axis = Axis::new()
+        .title(Title::new("$x$").font(Font::new().size(24)))
+        .show_grid(true)
+        .grid_color(PRIMITIVE_GREY)
+        .zero_line(false)
+        .color(PRIMITIVE_WHITE)
+        .line_color(PRIMITIVE_WHITE)
+        .tick_prefix(r"$")
+        .tick_suffix(r"$")
+        .tick_font(Font::new().size(24))
+        .auto_margin(false)
+        .range(x_bounds)
+        .ticks(plotly::layout::TicksDirection::Outside);
+
+    let y_axis = Axis::new()
+        .title(Title::new("$y$").font(Font::new().size(24)))
+        .show_grid(true)
+        .grid_color(PRIMITIVE_GREY)
+        .zero_line(false)
+        .show_line(true)
+        .color(PRIMITIVE_WHITE)
+        .line_color(PRIMITIVE_WHITE)
+        .tick_prefix(r"$")
+        .tick_suffix(r"$")
+        .tick_font(Font::new().size(24))
+        .auto_margin(false)
+        .range(y_bounds)
+        .ticks(plotly::layout::TicksDirection::Outside);
+
+    // let title_text = format!("{} {} {} {}", "$", "\\text{", name, "}$");
+    let title_text = "";
+    if transparent {
+        let layout = plotly::Layout::new()
+            .title(plotly::common::Title::new(name.as_str()))
+            .x_axis(x_axis)
+            .y_axis(y_axis)
+            .width(1600)
+            .height(900)
+            .plot_background_color("rgba(0,0,0,0)")
+            .paper_background_color("rgba(0,0,0,0)")
+            .show_legend(true)
+            .legend(
+                Legend::new()
+                    .font(Font::new().color(PRIMITIVE_WHITE).size(24))
+                    .x(0.50)
+                    .y(0.50)
+                    .background_color("rgba(0,0,0,0)")
+                    .border_width(0)
+                    .orientation(plotly::common::Orientation::Vertical)
+                    .trace_group_gap(10),
+            )
+            .margin(Margin::new().bottom(100).left(100).top(100).right(100));
+        plot.set_layout(layout);
+    } else {
+        let layout = plotly::Layout::new()
+            .title(plotly::common::Title::new(&title_text).font(Font::new().color(PRIMITIVE_WHITE)))
+            .x_axis(x_axis)
+            .y_axis(y_axis)
+            .width(1600)
+            .height(900)
+            .plot_background_color(PRIMITIVE_BLACK)
+            .paper_background_color(PRIMITIVE_BLACK)
+            .show_legend(true)
+            .legend(
+                Legend::new()
+                    .font(Font::new().color(PRIMITIVE_WHITE).size(24))
+                    .x(0.75)
+                    .y(0.75)
+                    .background_color("rgba(0,0,0,0)")
+                    .border_width(0)
+                    .orientation(plotly::common::Orientation::Vertical),
+            )
+            .margin(Margin::new().bottom(100).left(100).top(100).right(100));
+        plot.set_layout(layout);
+    }
+
+    plot.write_html(name.as_str().to_owned() + ".html");
+    if show {
+        plot.show();
+    }
+    // plot.write_image("rational_vs_polynomial.pdf", plotly::ImageFormat::PDF, 3840, 2160, 1.0)
+}
+
+
 pub fn transparent_plot<T: Serialize + Clone + 'static>(
     x: Vec<Vec<T>>,
     y: Vec<Vec<T>>,
@@ -53,51 +164,26 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
             0 => {
                 let trace = Scatter::new(x[i].clone(), y[i].clone())
                     .mode(Mode::Lines)
-                    .marker(
-                        Marker::new()
-                            .color(PRIMITIVE_GREEN)
-                            .size(12)
-                            .line(Line::new().color(PRIMITIVE_GREENS[i]).width(5.0)),
-                    )
+                    .line(Line::new().color(PRIMITIVE_GREEN).width(4.0))
                     .name("$\\exp\\left(-x^2\\right)$");
                 plot.add_trace(trace);
             }
             1 => {
                 let trace = Scatter::new(x[i].clone(), y[i].clone())
                     .mode(Mode::Lines)
-                    .marker(
-                        Marker::new()
-                            .color(PRIMITIVE_BLUE)
-                            .size(12)
-                            .line(Line::new().color(PRIMITIVE_BLUES[i]).width(5.0)),
-                    )
-                    .name("$\\displaystyle{\\frac{1}{1+x^2}}$");
+                    .line(Line::new().color(PRIMITIVE_BLUE).width(2.0))
+                    .name("$\\left(1+x^2\\right)^{-1}$");
                 plot.add_trace(trace);
             }
             2 => {
                 let trace = Scatter::new(x[i].clone(), y[i].clone())
                     .mode(Mode::Lines)
-                    .marker(
-                        Marker::new()
-                            .color(PRIMITIVE_PURPLE)
-                            .size(12)
-                            .line(Line::new().color(PRIMITIVE_PURPLES[i]).width(5.0)),
-                    )
+                    .line(Line::new().color(PRIMITIVE_PURPLE).width(2.0))
                     .name("$1-x^2 \\qquad .$");
                 plot.add_trace(trace);
             }
             _ => {}
         }
-        // let trace = Scatter::new(x[i].clone(), y[i].clone())
-        //     .mode(Mode::Lines)
-        //     .marker(
-        //         Marker::new()
-        //             .color(PRIMITIVE_GREENS[i])
-        //             .size(12)
-        //             .line(Line::new().color(PRIMITIVE_GREENS[i]).width(3.0)),
-        //     )
-        //     .name(legend_text.clone());
-        // plot.add_trace(trace);
     }
 
     let x_axis = Axis::new()
@@ -180,6 +266,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
     if show {
         plot.show();
     }
+    // plot.write_image("rational_vs_polynomial.pdf", plotly::ImageFormat::PDF, 3840, 2160, 1.0)
 }
 
 pub fn trading_curve_plot<T: Serialize + Clone + 'static>(
@@ -200,11 +287,10 @@ pub fn trading_curve_plot<T: Serialize + Clone + 'static>(
     );
     let trace = Scatter::new(x, y)
         .mode(Mode::Lines)
-        .marker(
-            Marker::new()
-                .color(PRIMITIVE_GREENS[0])
-                .size(12)
-                .line(Line::new().color(PRIMITIVE_GREENS[0]).width(3.0)),
+        .line(
+            Line::new()
+                .color(PRIMITIVE_GREEN)
+                .width(3.0),
         )
         .name(legend_text);
     plot.add_trace(trace);
