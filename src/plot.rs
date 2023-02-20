@@ -52,14 +52,14 @@ pub fn transparent_plot_again<T: Serialize + Clone + 'static>(
                 let trace = Scatter::new(x[i].clone(), y[i].clone())
                     .mode(Mode::Lines)
                     .line(Line::new().color(PRIMITIVE_PURPLES[i]).width(2.0))
-                    .name(format!("${} {} {}", "\\text{", {names[i].clone()}, "}$"));
+                    .name(names[i].clone());
                 plot.add_trace(trace);
             
     }
     let trace = Scatter::new(x[x.len()-1].clone(), y[x.len()-1].clone())
                     .mode(Mode::Lines)
                     .line(Line::new().color(PRIMITIVE_GREEN).width(4.0))
-                    .name("$\\exp\\left(-x^2\\right)\\quad .$");
+                    .name(names[x.len()-1].clone());
                 plot.add_trace(trace);
 
     let x_axis = Axis::new()
@@ -106,8 +106,8 @@ pub fn transparent_plot_again<T: Serialize + Clone + 'static>(
             .legend(
                 Legend::new()
                     .font(Font::new().color(PRIMITIVE_WHITE).size(24))
-                    .x(0.50)
-                    .y(0.50)
+                    .x(0.75)
+                    .y(0.75)
                     .background_color("rgba(0,0,0,0)")
                     .border_width(0)
                     .orientation(plotly::common::Orientation::Vertical)
@@ -142,7 +142,6 @@ pub fn transparent_plot_again<T: Serialize + Clone + 'static>(
     if show {
         plot.show();
     }
-    // plot.write_image("rational_vs_polynomial.pdf", plotly::ImageFormat::PDF, 3840, 2160, 1.0)
 }
 
 
@@ -164,8 +163,8 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
             0 => {
                 let trace = Scatter::new(x[i].clone(), y[i].clone())
                     .mode(Mode::Lines)
-                    .line(Line::new().color(PRIMITIVE_GREEN).width(4.0))
-                    .name("$\\exp\\left(-x^2\\right)$");
+                    .line(Line::new().color(PRIMITIVE_PURPLE).width(2.0))
+                    .name("$1-x^2 \\qquad .$");
                 plot.add_trace(trace);
             }
             1 => {
@@ -178,8 +177,8 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
             2 => {
                 let trace = Scatter::new(x[i].clone(), y[i].clone())
                     .mode(Mode::Lines)
-                    .line(Line::new().color(PRIMITIVE_PURPLE).width(2.0))
-                    .name("$1-x^2 \\qquad .$");
+                    .line(Line::new().color(PRIMITIVE_GREEN).width(4.0))
+                    .name("$\\exp\\left(-x^2\\right)$");
                 plot.add_trace(trace);
             }
             _ => {}
@@ -230,8 +229,8 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
             .legend(
                 Legend::new()
                     .font(Font::new().color(PRIMITIVE_WHITE).size(24))
-                    .x(0.50)
-                    .y(0.50)
+                    .x(0.75)
+                    .y(0.75)
                     .background_color("rgba(0,0,0,0)")
                     .border_width(0)
                     .orientation(plotly::common::Orientation::Vertical)
