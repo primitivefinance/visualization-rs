@@ -58,3 +58,24 @@ pub fn standard_gaussian_pdf(x: Vec<f64>) -> Vec<f64> {
     }
     y
 }
+
+pub fn polynomial_approx(x: Vec<f64>, coeffs: Vec<f64>) -> Vec<f64> {
+    let mut y = Vec::with_capacity(x.len());
+    println!("coeffs: {:#?}", coeffs);
+    for x_val in &x {
+        let mut y_val = 0.0;
+        for (i, coeff) in coeffs.iter().enumerate() {
+            y_val += coeff * x_val.powi(i as i32);
+        }
+        y.push(y_val);
+    }
+    y
+}
+
+pub fn factorial(n: u32) -> u32 {
+    let mut f = 1;
+    for i in 1..=n {
+        f *= i;
+    }
+    f
+}

@@ -5,6 +5,10 @@ use plotly::{
 use plotly::{layout::Margin, Plot, Scatter};
 use serde::ser::Serialize;
 
+pub enum DisplayMode {
+    Light,
+    Dark,
+}
 pub enum Color {
     Green,
     Blue,
@@ -49,10 +53,8 @@ pub const PRIMITIVE_BLACK: &str = "rgba(21,23,24,255)"; //"151718";
 pub const PRIMITIVE_WHITE: &str = "FFFFFF";
 
 pub fn transparent_plot<T: Serialize + Clone + 'static>(
-    x: Vec<Vec<T>>,
-    y: Vec<Vec<T>>,
-    x_bounds: Vec<f64>,
-    y_bounds: Vec<f64>,
+    curves: (Vec<Vec<T>>, Vec<Vec<T>>),
+    bounds: (Vec<f64>, Vec<f64>),
     plot_name: String,
     legend_names: Vec<String>,
     colors: Vec<(Color, usize, Emphasis)>,
@@ -60,7 +62,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
     show: bool,
 ) {
     let mut plot = Plot::new();
-    for i in 0..x.len() {
+    for i in 0..curves.0.len() {
         let line = match &colors[i].0 {
             Color::Green => Line::new().color(PRIMITIVE_GREENS[colors[i].1]),
             Color::Blue => Line::new().color(PRIMITIVE_BLUES[colors[i].1]),
@@ -73,7 +75,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
             Emphasis::Light => line.width(2.0),
             Emphasis::Heavy => line.width(4.0),
         };
-        let trace = Scatter::new(x[i].clone(), y[i].clone())
+        let trace = Scatter::new(curves.0[i].clone(), curves.1[i].clone())
             .mode(Mode::Lines)
             .line(line)
             .name(&legend_names[i]);
@@ -91,7 +93,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
         .tick_suffix(r"$")
         .tick_font(Font::new().size(24))
         .auto_margin(false)
-        .range(x_bounds)
+        .range(bounds.0)
         .ticks(plotly::layout::TicksDirection::Outside);
 
     let y_axis = Axis::new()
@@ -106,7 +108,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
         .tick_suffix(r"$")
         .tick_font(Font::new().size(24))
         .auto_margin(false)
-        .range(y_bounds)
+        .range(bounds.1)
         .ticks(plotly::layout::TicksDirection::Outside);
 
     let title_text = "";
