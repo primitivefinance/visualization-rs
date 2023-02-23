@@ -33,12 +33,22 @@ fn main() {
     let prices = linspace(p_0, p_1, n).collect::<Vec<f64>>();
     let mut x: Vec<Vec<f64>> = Vec::new();
     let mut y: Vec<Vec<f64>> = Vec::new();
-    let scale_factors = linspace(0.1, 3.0, 10).collect::<Vec<f64>>();
+    let scale_factors = linspace(0.1, 2.0, 6).collect::<Vec<f64>>();
     for scale_factor in scale_factors.iter() {
-        let (x_tau, y_tau) = functions::rmm_trading_curve(prices.clone(), strike, sigma, tau, Some(*scale_factor));
-        x.push(x_tau);
-        y.push(y_tau);
+        let (x_scale, y_scale) = functions::rmm_trading_curve(prices.clone(), strike, sigma, tau, Some(*scale_factor));
+        x.push(x_scale);
+        y.push(y_scale);
     }
+    let t = linspace(0.0, 1.0, 1000).collect::<Vec<f64>>();
+    let slopes = vec![(2.0,1.0), (1.0, 1.0), (1.0,2.0)];
+    for slope in &slopes {
+        let curve = functions::parametric_line(t.clone(), slope.0, slope.1, 0.0, 0.0);
+        x.push(curve.0);
+        y.push(curve.1);
+    }
+    // let curve = functions::parametric_line(t, 1.0, 1.0, 0.0, 0.0);
+    // x.push(curve.0);
+    // y.push(curve.1);
     let x_bounds = vec![0_f64, 1_f64];
     let y_bounds = vec![0_f64, strike];
     let single_color = true;
