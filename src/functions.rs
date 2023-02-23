@@ -66,7 +66,6 @@ pub fn standard_gaussian_pdf(x: Vec<f64>) -> Vec<f64> {
 
 pub fn polynomial_approx(x: Vec<f64>, coeffs: Vec<f64>) -> Vec<f64> {
     let mut y = Vec::with_capacity(x.len());
-    println!("coeffs: {:#?}", coeffs);
     for x_val in &x {
         let mut y_val = 0.0;
         for (i, coeff) in coeffs.iter().enumerate() {

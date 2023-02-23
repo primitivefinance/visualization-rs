@@ -5,6 +5,7 @@ use plotly::{
 use plotly::{layout::Margin, Plot, Scatter};
 use serde::ser::Serialize;
 
+#[derive(Copy, Clone)]
 pub enum DisplayMode {
     Light,
     Dark,
@@ -59,8 +60,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
     plot_name: String,
     legend_names: Vec<String>,
     colors: Vec<(Color, usize, Emphasis)>,
-    transparent: bool,
-    show: bool,
+    (transparent, display_mode, show): (bool, DisplayMode, bool),
 ) {
     let mut plot = Plot::new();
     for i in 0..curves.0.len() {
@@ -103,8 +103,6 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
         .grid_color(PRIMITIVE_GREY)
         .zero_line(false)
         .show_line(true)
-        .color(PRIMITIVE_WHITE)
-        .line_color(PRIMITIVE_WHITE)
         .tick_prefix(r"$")
         .tick_suffix(r"$")
         .tick_font(Font::new().size(24))
@@ -112,52 +110,57 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
         .range(bounds.1)
         .ticks(plotly::layout::TicksDirection::Outside);
 
-    let title_text = "";
-    if transparent {
-        let layout = plotly::Layout::new()
-            .title(plotly::common::Title::new(plot_name.as_str()))
-            .x_axis(x_axis)
-            .y_axis(y_axis)
-            .width(1600)
-            .height(900)
+    let (x_axis, y_axis) = match display_mode {
+        DisplayMode::Light => (
+            x_axis.color(PRIMITIVE_BLACK).line_color(PRIMITIVE_BLACK),
+            y_axis.color(PRIMITIVE_BLACK).line_color(PRIMITIVE_BLACK),
+        ),
+        DisplayMode::Dark => (
+            x_axis.color(PRIMITIVE_WHITE).line_color(PRIMITIVE_WHITE),
+            y_axis.color(PRIMITIVE_WHITE).line_color(PRIMITIVE_WHITE),
+        ),
+    };
+
+    let layout = plotly::Layout::new()
+        .title(plotly::common::Title::new(plot_name.as_str()))
+        .x_axis(x_axis)
+        .y_axis(y_axis)
+        .width(1600)
+        .height(900)
+        .show_legend(true)
+        .margin(Margin::new().bottom(100).left(100).top(100).right(100));
+    let layout = match transparent {
+        true => layout
             .plot_background_color("rgba(0,0,0,0)")
-            .paper_background_color("rgba(0,0,0,0)")
-            .show_legend(true)
+            .paper_background_color("rgba(0,0,0,0)"),
+        false => match display_mode {
+            DisplayMode::Dark => layout
+                .plot_background_color(PRIMITIVE_BLACK)
+                .paper_background_color(PRIMITIVE_BLACK),
+            DisplayMode::Light => layout
+                .plot_background_color(PRIMITIVE_WHITE)
+                .paper_background_color(PRIMITIVE_WHITE),
+        },
+    };
+    let layout = match display_mode {
+        DisplayMode::Dark => layout
             .legend(
                 Legend::new()
                     .font(Font::new().color(PRIMITIVE_WHITE).size(24))
                     .x(0.75)
-                    .y(0.75)
-                    .background_color("rgba(0,0,0,0)")
-                    .border_width(0)
-                    .orientation(plotly::common::Orientation::Vertical)
-                    .trace_group_gap(10),
+                    .y(0.75),
             )
-            .margin(Margin::new().bottom(100).left(100).top(100).right(100));
-        plot.set_layout(layout);
-    } else {
-        let layout = plotly::Layout::new()
-            .title(plotly::common::Title::new(title_text).font(Font::new().color(PRIMITIVE_WHITE)))
-            .x_axis(x_axis)
-            .y_axis(y_axis)
-            .width(1600)
-            .height(900)
-            .plot_background_color(PRIMITIVE_BLACK)
-            .paper_background_color(PRIMITIVE_BLACK)
-            .show_legend(true)
+            .font(Font::new().color(PRIMITIVE_WHITE)),
+        DisplayMode::Light => layout
             .legend(
                 Legend::new()
-                    .font(Font::new().color(PRIMITIVE_WHITE).size(32))
+                    .font(Font::new().color(PRIMITIVE_BLACK).size(24))
                     .x(0.75)
-                    .y(0.75)
-                    .background_color("rgba(0,0,0,0)")
-                    .border_width(0)
-                    .orientation(plotly::common::Orientation::Vertical),
+                    .y(0.75),
             )
-            .margin(Margin::new().bottom(100).left(100).top(100).right(100));
-        plot.set_layout(layout);
-    }
-
+            .font(Font::new().color(PRIMITIVE_BLACK)),
+    };
+    plot.set_layout(layout);
     plot.write_html(plot_name.as_str().to_owned() + ".html");
     if show {
         plot.show();

@@ -5,12 +5,17 @@ use statrs::consts;
 
 mod functions;
 mod plot;
-use plot::{Color, Emphasis};
+use plot::{Color, DisplayMode, Emphasis};
 
 fn main() {
+    // Global Toggle Variables
+    let transparent = true;
+    let display_mode = DisplayMode::Light;
+    let show = true;
+
     // ------------------ Plotting Plot 1 ------------------ //
     // Plot of different types of approximations to the Gaussian PDF
-    let plot_name = "Comparing Types of Approximation".to_string();
+    let plot_name = "$\\text{Comparing Types of Approximation}$".to_string();
     let (mut x, mut y) = (vec![], vec![]);
     let x_bounds = vec![-5.0, 5.0];
     let y_bounds = vec![-0.5, 1.5];
@@ -54,13 +59,12 @@ fn main() {
         plot_name,
         legend_names,
         colors,
-        false,
-        true,
+        (transparent, display_mode, show),
     );
 
     // ------------------ Plotting Plot 2 ------------------ //
     // Plots of polynomial approximations to the Gaussian PDF
-    let plot_name = "Polynomial Approximations".to_string();
+    let plot_name = "$\\text{Polynomial Approximations}$".to_string();
     let mut x = vec![];
     let mut y = vec![];
     let x_bounds = vec![-5.0, 5.0];
@@ -118,13 +122,12 @@ fn main() {
         plot_name,
         legend_names,
         colors,
-        false,
-        true,
+        (transparent, display_mode, show),
     );
 
     // ------------------ Plotting Plot 3 ------------------ //
     // Plot RMM trading curve for multiple taus from a list of prices
-    let plot_name = "RMM Trading Curve".to_string();
+    let plot_name = "$\\text{RMM Trading Curve}$".to_string();
     let strike = 3_f64;
     let sigma = 0.5_f64;
     let taus: Vec<f64> = linspace(2.0, 0.0, 5).collect::<Vec<f64>>();
@@ -161,7 +164,6 @@ fn main() {
         plot_name,
         legend_names,
         colors,
-        false,
-        true,
+        (transparent, display_mode, show),
     );
 }
