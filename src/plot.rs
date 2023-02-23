@@ -9,6 +9,7 @@ pub enum DisplayMode {
     Light,
     Dark,
 }
+// TODO: Use DisplayMode for light mode/dark mode. For light mode, we will also want to consider decreasing from the top when using a list of colors since that will be darker
 pub enum Color {
     Green,
     Blue,
@@ -113,7 +114,6 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
 
     let title_text = "";
     if transparent {
-        println!("got here?");
         let layout = plotly::Layout::new()
             .title(plotly::common::Title::new(plot_name.as_str()))
             .x_axis(x_axis)

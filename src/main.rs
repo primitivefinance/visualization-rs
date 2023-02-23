@@ -18,23 +18,26 @@ fn main() {
     let x_input = linspace(x_bounds[0], x_bounds[1], number_of_points).collect::<Vec<f64>>();
     x.push(x_input.clone());
     y.push(x_input.iter().map(|x| 1.0 - x * x).collect::<Vec<f64>>());
-    x.push(        x_input.clone());
-    y.push( x_input
+    x.push(x_input.clone());
+    y.push(
+        x_input
             .iter()
             .map(|x| 1.0 / (1.0 + x * x))
             .collect::<Vec<f64>>(),
     );
     x.push(x_input.clone());
-    let y_temp =functions::standard_gaussian_pdf(
-            x_input
-                .iter()
-                .map(|x| x * 2.0_f64.sqrt())
-                .collect::<Vec<f64>>(),
+    let y_temp = functions::standard_gaussian_pdf(
+        x_input
+            .iter()
+            .map(|x| x * 2.0_f64.sqrt())
+            .collect::<Vec<f64>>(),
     );
-    y.push(y_temp
-        .iter()
-        .map(|y| consts::SQRT_2PI * y)
-        .collect::<Vec<f64>>());
+    y.push(
+        y_temp
+            .iter()
+            .map(|y| consts::SQRT_2PI * y)
+            .collect::<Vec<f64>>(),
+    );
     let colors = vec![
         (Color::Purple, plot::MAIN_SLOT, Emphasis::Light),
         (Color::Blue, plot::MAIN_SLOT, Emphasis::Light),
@@ -46,8 +49,8 @@ fn main() {
         "$\\exp\\left(-x^2\\right)$".to_string(),
     ];
     plot::transparent_plot(
-        (x,y),
-        (x_bounds,y_bounds),
+        (x, y),
+        (x_bounds, y_bounds),
         plot_name,
         legend_names,
         colors,
@@ -72,7 +75,6 @@ fn main() {
             _ => 0.0,
         })
         .collect::<Vec<f64>>();
-    println!("{:#?}", coeffs);
     for i in (0..top_degree + 1).step_by(2) {
         x.push(x_input.clone());
         y.push(functions::polynomial_approx(
@@ -110,14 +112,22 @@ fn main() {
         format!("${} {} {}", "\\text{", "Degree 8", "}$"),
         "$\\exp\\left(-x^2\\right)$".to_string(),
     ];
-    plot::transparent_plot((x,y), (x_bounds,y_bounds), plot_name, legend_names, colors, false, true);
+    plot::transparent_plot(
+        (x, y),
+        (x_bounds, y_bounds),
+        plot_name,
+        legend_names,
+        colors,
+        false,
+        true,
+    );
 
     // ------------------ Plotting Plot 3 ------------------ //
     // Plot RMM trading curve for multiple taus from a list of prices
     let plot_name = "RMM Trading Curve".to_string();
     let strike = 3_f64;
     let sigma = 0.5_f64;
-    let taus = vec![2.0_f64, 1.5_f64, 1.0_f64, 0.5_f64, 0.0_f64];
+    let taus: Vec<f64> = linspace(2.0, 0.0, 5).collect::<Vec<f64>>();
     let p_0 = 0.0_f64;
     let p_1 = 100.0_f64;
     let n = 1000;
@@ -146,7 +156,7 @@ fn main() {
         "$\\tau=0.0$".to_string(),
     ];
     plot::transparent_plot(
-        (x,y),
+        (x, y),
         (x_bounds, y_bounds),
         plot_name,
         legend_names,
