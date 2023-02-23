@@ -34,6 +34,7 @@ pub fn rmm_trading_curve(
     strike: f64,
     sigma: f64,
     tau: f64,
+    scaling: Option<f64>
 ) -> (Vec<f64>, Vec<f64>) {
     let n = prices.len();
     let (mut x, mut y) = (Vec::with_capacity(n), Vec::with_capacity(n));
