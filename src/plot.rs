@@ -11,6 +11,7 @@ pub enum DisplayMode {
     Dark,
 }
 // TODO: Use DisplayMode for light mode/dark mode. For light mode, we will also want to consider decreasing from the top when using a list of colors since that will be darker
+#[derive(Debug)]
 pub enum Color {
     Green,
     Blue,
@@ -47,7 +48,7 @@ pub const PRIMITIVE_GREYS: [&str; 10] = [
     "0B0B15",
 ];
 
-pub const PRIMITIVE_BLACK: &str = "rgba(21,23,24,255)"; //"151718";
+pub const PRIMITIVE_BLACK: &str = "151718";
 pub const PRIMITIVE_WHITE: &str = "FFFFFF";
 
 pub fn transparent_plot<T: Serialize + Clone + 'static>(
@@ -55,20 +56,24 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
     bounds: (Vec<f64>, Vec<f64>),
     plot_name: String,
     legend_names: Option<Vec<String>>,
-    colors: Vec<(Color, usize, Emphasis)>,
+    colors: Vec<(Color, usize, Emphasis, bool)>,
     (transparent, display_mode, show): (bool, DisplayMode, bool),
 ) {
     let mut plot = Plot::new();
     for i in 0..curves.0.len() {
-        let line = match &colors[i].0 {
-            Color::Green => Line::new().color(PRIMITIVE_GREENS[colors[i].1]),
-            Color::Blue => Line::new().color(PRIMITIVE_BLUES[colors[i].1]),
-            Color::Purple => Line::new().color(PRIMITIVE_PURPLES[colors[i].1]),
-            Color::Grey => Line::new().color(PRIMITIVE_GREYS[colors[i].1]),
+        let color = match &colors[0].3 {
+            true => &colors[0],
+            false => &colors[i],
+        };
+        let line = match color.0 {
+            Color::Green => Line::new().color(PRIMITIVE_GREENS[color.1]),
+            Color::Blue => Line::new().color(PRIMITIVE_BLUES[color.1]),
+            Color::Purple => Line::new().color(PRIMITIVE_PURPLES[color.1]),
+            Color::Grey => Line::new().color(PRIMITIVE_GREYS[color.1]),
             Color::Black => Line::new().color(PRIMITIVE_BLACK),
             Color::White => Line::new().color(PRIMITIVE_WHITE),
         };
-        let line = match &colors[i].2 {
+        let line = match &color.2 {
             Emphasis::Light => line.width(2.0),
             Emphasis::Heavy => line.width(4.0),
         };

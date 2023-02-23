@@ -42,8 +42,8 @@ pub fn rmm_trading_curve(
     let d2 = d_two(prices, strike, sigma, tau);
     let normal = NormalDist::new(0.0, 1.0).unwrap();
     for i in 0..n {
-        x.push(1.0 - normal.cdf(d1[i]));
-        y.push(strike * normal.cdf(d2[i]));
+        x.push(scaling.unwrap_or(1.0)*(1.0 - normal.cdf(d1[i])));
+        y.push(scaling.unwrap_or(1.0)*strike * normal.cdf(d2[i]));
     }
     (x, y)
 }
