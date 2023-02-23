@@ -29,7 +29,12 @@ pub fn d_two(x: Vec<f64>, strike: f64, sigma: f64, tau: f64) -> Vec<f64> {
 }
 
 // TODO: Rewrite as R_x and R_y functions so that we can use closures the same way in main.rs
-pub fn rmm_trading_curve(prices: Vec<f64>, strike: f64, sigma: f64, tau: f64) -> (Vec<f64>, Vec<f64>) {
+pub fn rmm_trading_curve(
+    prices: Vec<f64>,
+    strike: f64,
+    sigma: f64,
+    tau: f64,
+) -> (Vec<f64>, Vec<f64>) {
     let n = prices.len();
     let (mut x, mut y) = (Vec::with_capacity(n), Vec::with_capacity(n));
     let d1 = d_one(prices.clone(), strike, sigma, tau);

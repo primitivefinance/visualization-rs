@@ -11,36 +11,32 @@ fn main() {
     // ------------------ Plotting Plot 1 ------------------ //
     // Plot of different types of approximations to the Gaussian PDF
     let plot_name = "Comparing Types of Approximation".to_string();
+    let (mut x, mut y) = (vec![], vec![]);
     let x_bounds = vec![-5.0, 5.0];
     let y_bounds = vec![-0.5, 1.5];
     let number_of_points = 1000;
     let x_input = linspace(x_bounds[0], x_bounds[1], number_of_points).collect::<Vec<f64>>();
-    let (x1, y1) = (
-        x_input.clone(),
-        x_input.iter().map(|x| 1.0 - x * x).collect::<Vec<f64>>(),
-    );
-    let (x2, y2) = (
-        x_input.clone(),
-        x_input
+    x.push(x_input.clone());
+    y.push(x_input.iter().map(|x| 1.0 - x * x).collect::<Vec<f64>>());
+    x.push(        x_input.clone());
+    y.push( x_input
             .iter()
             .map(|x| 1.0 / (1.0 + x * x))
             .collect::<Vec<f64>>(),
     );
-    let (x3, y3) = (
-        x_input.clone(),
-        functions::standard_gaussian_pdf(
+    x.push(x_input.clone());
+    let y_temp =functions::standard_gaussian_pdf(
             x_input
                 .iter()
                 .map(|x| x * 2.0_f64.sqrt())
                 .collect::<Vec<f64>>(),
-        ),
     );
-    let y3 = y3
+    y.push(y_temp
         .iter()
         .map(|y| consts::SQRT_2PI * y)
-        .collect::<Vec<f64>>();
-    let curves = (vec![x1, x2, x3],vec![y1,y2,y3]);
-    let bounds = (x_bounds,y_bounds);
+        .collect::<Vec<f64>>());
+    let curves = (x,y);
+    let bounds = (x_bounds, y_bounds);
     let colors = vec![
         (Color::Purple, plot::MAIN_SLOT, Emphasis::Light),
         (Color::Blue, plot::MAIN_SLOT, Emphasis::Light),
@@ -52,13 +48,13 @@ fn main() {
         "$\\exp\\left(-x^2\\right)$".to_string(),
     ];
     plot::transparent_plot(
-curves,
-bounds,
+        curves,
+        bounds,
         plot_name,
         legend_names,
         colors,
         false,
-        false,
+        true,
     );
 
     // ------------------ Plotting Plot 2 ------------------ //
@@ -70,29 +66,38 @@ bounds,
     let number_of_points = 1000;
     let top_degree = 8;
     let x_input = linspace(x_bounds[0], x_bounds[1], number_of_points).collect::<Vec<f64>>();
-    let coeff_range: Vec<i32> = (0..top_degree+1).collect();
-    let coeffs = coeff_range.iter().map(|n| match n%2 {
-        0 => (((-1.0) as f64).powi(n.div(2)))/(functions::factorial(n.div(2) as u32) as f64),
-        _ => 0.0} ).collect::<Vec<f64>>();
-    println!("{:#?}",coeffs);
-    for i in (0..top_degree+1).step_by(2) {
-            x.push(x_input.clone());
-            y.push(functions::polynomial_approx(x_input.clone(), coeffs[0..1+i as usize].to_vec()));
+    let coeff_range: Vec<i32> = (0..top_degree + 1).collect();
+    let coeffs = coeff_range
+        .iter()
+        .map(|n| match n % 2 {
+            0 => (((-1.0) as f64).powi(n.div(2))) / (functions::factorial(n.div(2) as u32) as f64),
+            _ => 0.0,
+        })
+        .collect::<Vec<f64>>();
+    println!("{:#?}", coeffs);
+    for i in (0..top_degree + 1).step_by(2) {
+        x.push(x_input.clone());
+        y.push(functions::polynomial_approx(
+            x_input.clone(),
+            coeffs[0..1 + i as usize].to_vec(),
+        ));
     }
     x.push(x_input.clone());
     let y_temp = functions::standard_gaussian_pdf(
-            x_input
-                .iter()
-                .map(|x| x * 2.0_f64.sqrt())
-                .collect::<Vec<f64>>(),
+        x_input
+            .iter()
+            .map(|x| x * 2.0_f64.sqrt())
+            .collect::<Vec<f64>>(),
     );
-    y.push(y_temp
-        .iter()
-        .map(|y| consts::SQRT_2PI * y)
-        .collect::<Vec<f64>>());
-    let curves = (x,y);
+    y.push(
+        y_temp
+            .iter()
+            .map(|y| consts::SQRT_2PI * y)
+            .collect::<Vec<f64>>(),
+    );
+    let curves = (x, y);
     let y_bounds = vec![-1.0, 1.5];
-    let bounds = (x_bounds,y_bounds);
+    let bounds = (x_bounds, y_bounds);
     let colors = vec![
         (Color::Purple, 0, Emphasis::Light),
         (Color::Purple, 1, Emphasis::Light),
@@ -109,15 +114,7 @@ bounds,
         format!("${} {} {}", "\\text{", "Degree 8", "}$"),
         "$\\exp\\left(-x^2\\right)$".to_string(),
     ];
-    plot::transparent_plot(
-        curves,
-        bounds,
-        plot_name,
-        legend_names,
-        colors,
-        false,
-        true,
-    );
+    plot::transparent_plot(curves, bounds, plot_name, legend_names, colors, false, true);
 
     // ------------------ Plotting Plot 3 ------------------ //
     // // Plot RMM trading curve for multiple taus from a list of prices
