@@ -1,45 +1,48 @@
+use std::ops::Div;
+
 use itertools_num::linspace;
 use statrs::consts;
 
 mod functions;
 mod plot;
-use plot::{Color, Emphasis};
+use plot::{Color, DisplayMode, Emphasis};
 
 fn main() {
+    // Global Toggle Variables
+    let transparent = true;
+    let display_mode = DisplayMode::Light;
+    let show = true;
+
+    // ------------------ Plotting Plot 1 ------------------ //
     // Plot of different types of approximations to the Gaussian PDF
-    let plot_name = "Comparing Types of Approximation".to_string();
-    let x_0 = -5.0_f64;
-    let x_1 = 5.0_f64;
-    let n = 1000;
-    let x_input = linspace(x_0, x_1, n).collect::<Vec<f64>>();
-    let (x1, y1) = (
-        x_input.clone(),
-        x_input.iter().map(|x| 1.0 - x * x).collect::<Vec<f64>>(),
-    );
-    let (x2, y2) = (
-        x_input.clone(),
+    let plot_name = "$\\text{Comparing Types of Approximation}$".to_string();
+    let (mut x, mut y) = (vec![], vec![]);
+    let x_bounds = vec![-5.0, 5.0];
+    let y_bounds = vec![-0.5, 1.5];
+    let number_of_points = 1000;
+    let x_input = linspace(x_bounds[0], x_bounds[1], number_of_points).collect::<Vec<f64>>();
+    x.push(x_input.clone());
+    y.push(x_input.iter().map(|x| 1.0 - x * x).collect::<Vec<f64>>());
+    x.push(x_input.clone());
+    y.push(
         x_input
             .iter()
             .map(|x| 1.0 / (1.0 + x * x))
             .collect::<Vec<f64>>(),
     );
-    let (x3, y3) = (
-        x_input.clone(),
-        functions::standard_gaussian_pdf(
-            x_input
-                .iter()
-                .map(|x| x * 2.0_f64.sqrt())
-                .collect::<Vec<f64>>(),
-        ),
+    x.push(x_input.clone());
+    let y_temp = functions::standard_gaussian_pdf(
+        x_input
+            .iter()
+            .map(|x| x * 2.0_f64.sqrt())
+            .collect::<Vec<f64>>(),
     );
-    let y3 = y3
-        .iter()
-        .map(|y| consts::SQRT_2PI * y)
-        .collect::<Vec<f64>>();
-    let x = vec![x1, x2, x3];
-    let y = vec![y1, y2, y3];
-    let x_bounds = vec![x_0, x_1];
-    let y_bounds = vec![-1.0, 1.5];
+    y.push(
+        y_temp
+            .iter()
+            .map(|y| consts::SQRT_2PI * y)
+            .collect::<Vec<f64>>(),
+    );
     let colors = vec![
         (Color::Purple, plot::MAIN_SLOT, Emphasis::Light),
         (Color::Blue, plot::MAIN_SLOT, Emphasis::Light),
@@ -51,71 +54,51 @@ fn main() {
         "$\\exp\\left(-x^2\\right)$".to_string(),
     ];
     plot::transparent_plot(
-        x,
-        y,
-        x_bounds,
-        y_bounds,
+        (x, y),
+        (x_bounds, y_bounds),
         plot_name,
         legend_names,
         colors,
-        false,
-        true,
+        (transparent, display_mode, show),
     );
 
+    // ------------------ Plotting Plot 2 ------------------ //
     // Plots of polynomial approximations to the Gaussian PDF
-    let plot_name = "Polynomial Approximations".to_string();
-    let x_0 = -5.0_f64;
-    let x_1 = 5.0_f64;
-    let n = 1000;
-    let x_input = linspace(x_0, x_1, n).collect::<Vec<f64>>();
-    let (x0, y0) = (
-        x_input.clone(),
-        x_input.iter().map(|_x| 1.0).collect::<Vec<f64>>(),
-    );
-    let (x1, y1) = (
-        x_input.clone(),
-        x_input.iter().map(|x| 1.0 - x * x).collect::<Vec<f64>>(),
-    );
-    let (x2, y2) = (
-        x_input.clone(),
-        x_input
-            .iter()
-            .map(|x| 1.0 - x * x + x * x * x * x / 2.0)
-            .collect::<Vec<f64>>(),
-    );
-    let (x3, y3) = (
-        x_input.clone(),
-        x_input
-            .iter()
-            .map(|x| 1.0 - x * x + x * x * x * x / 2.0 - x * x * x * x * x * x / 6.0)
-            .collect::<Vec<f64>>(),
-    );
-    let (x4, y4) = (
-        x_input.clone(),
-        x_input
-            .iter()
-            .map(|x| {
-                1.0 - x * x + x * x * x * x / 2.0 - x * x * x * x * x * x / 6.0
-                    + x * x * x * x * x * x * x * x / 24.0
-            })
-            .collect::<Vec<f64>>(),
-    );
-    let (x5, y5) = (
-        x_input.clone(),
-        functions::standard_gaussian_pdf(
-            x_input
-                .iter()
-                .map(|x| x * 2.0_f64.sqrt())
-                .collect::<Vec<f64>>(),
-        ),
-    );
-    let y5 = y5
+    let plot_name = "$\\text{Polynomial Approximations}$".to_string();
+    let mut x = vec![];
+    let mut y = vec![];
+    let x_bounds = vec![-5.0, 5.0];
+    let number_of_points = 1000;
+    let top_degree = 8;
+    let x_input = linspace(x_bounds[0], x_bounds[1], number_of_points).collect::<Vec<f64>>();
+    let coeff_range: Vec<i32> = (0..top_degree + 1).collect();
+    let coeffs = coeff_range
         .iter()
-        .map(|y| consts::SQRT_2PI * y)
+        .map(|n| match n % 2 {
+            0 => (((-1.0) as f64).powi(n.div(2))) / (functions::factorial(n.div(2) as u32) as f64),
+            _ => 0.0,
+        })
         .collect::<Vec<f64>>();
-    let x = vec![x0, x1, x2, x3, x4, x5];
-    let y = vec![y0, y1, y2, y3, y4, y5];
-    let x_bounds = vec![x_0, x_1];
+    for i in (0..top_degree + 1).step_by(2) {
+        x.push(x_input.clone());
+        y.push(functions::polynomial_approx(
+            x_input.clone(),
+            coeffs[0..1 + i as usize].to_vec(),
+        ));
+    }
+    x.push(x_input.clone());
+    let y_temp = functions::standard_gaussian_pdf(
+        x_input
+            .iter()
+            .map(|x| x * 2.0_f64.sqrt())
+            .collect::<Vec<f64>>(),
+    );
+    y.push(
+        y_temp
+            .iter()
+            .map(|y| consts::SQRT_2PI * y)
+            .collect::<Vec<f64>>(),
+    );
     let y_bounds = vec![-1.0, 1.5];
     let colors = vec![
         (Color::Purple, 0, Emphasis::Light),
@@ -134,22 +117,20 @@ fn main() {
         "$\\exp\\left(-x^2\\right)$".to_string(),
     ];
     plot::transparent_plot(
-        x,
-        y,
-        x_bounds,
-        y_bounds,
+        (x, y),
+        (x_bounds, y_bounds),
         plot_name,
         legend_names,
         colors,
-        false,
-        true,
+        (transparent, display_mode, show),
     );
 
+    // ------------------ Plotting Plot 3 ------------------ //
     // Plot RMM trading curve for multiple taus from a list of prices
-    let plot_name = "RMM Trading Curve".to_string();
+    let plot_name = "$\\text{RMM Trading Curve}$".to_string();
     let strike = 3_f64;
     let sigma = 0.5_f64;
-    let taus = vec![2.0_f64, 1.5_f64, 1.0_f64, 0.5_f64, 0.0_f64];
+    let taus: Vec<f64> = linspace(2.0, 0.0, 5).collect::<Vec<f64>>();
     let p_0 = 0.0_f64;
     let p_1 = 100.0_f64;
     let n = 1000;
@@ -178,14 +159,11 @@ fn main() {
         "$\\tau=0.0$".to_string(),
     ];
     plot::transparent_plot(
-        x,
-        y,
-        x_bounds,
-        y_bounds,
+        (x, y),
+        (x_bounds, y_bounds),
         plot_name,
         legend_names,
         colors,
-        false,
-        true,
+        (transparent, display_mode, show),
     );
 }

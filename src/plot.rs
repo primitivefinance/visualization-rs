@@ -5,6 +5,12 @@ use plotly::{
 use plotly::{layout::Margin, Plot, Scatter};
 use serde::ser::Serialize;
 
+#[derive(Copy, Clone)]
+pub enum DisplayMode {
+    Light,
+    Dark,
+}
+// TODO: Use DisplayMode for light mode/dark mode. For light mode, we will also want to consider decreasing from the top when using a list of colors since that will be darker
 pub enum Color {
     Green,
     Blue,
@@ -49,18 +55,15 @@ pub const PRIMITIVE_BLACK: &str = "rgba(21,23,24,255)"; //"151718";
 pub const PRIMITIVE_WHITE: &str = "FFFFFF";
 
 pub fn transparent_plot<T: Serialize + Clone + 'static>(
-    x: Vec<Vec<T>>,
-    y: Vec<Vec<T>>,
-    x_bounds: Vec<f64>,
-    y_bounds: Vec<f64>,
+    curves: (Vec<Vec<T>>, Vec<Vec<T>>),
+    bounds: (Vec<f64>, Vec<f64>),
     plot_name: String,
     legend_names: Vec<String>,
     colors: Vec<(Color, usize, Emphasis)>,
-    transparent: bool,
-    show: bool,
+    (transparent, display_mode, show): (bool, DisplayMode, bool),
 ) {
     let mut plot = Plot::new();
-    for i in 0..x.len() {
+    for i in 0..curves.0.len() {
         let line = match &colors[i].0 {
             Color::Green => Line::new().color(PRIMITIVE_GREENS[colors[i].1]),
             Color::Blue => Line::new().color(PRIMITIVE_BLUES[colors[i].1]),
@@ -73,7 +76,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
             Emphasis::Light => line.width(2.0),
             Emphasis::Heavy => line.width(4.0),
         };
-        let trace = Scatter::new(x[i].clone(), y[i].clone())
+        let trace = Scatter::new(curves.0[i].clone(), curves.1[i].clone())
             .mode(Mode::Lines)
             .line(line)
             .name(&legend_names[i]);
@@ -91,7 +94,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
         .tick_suffix(r"$")
         .tick_font(Font::new().size(24))
         .auto_margin(false)
-        .range(x_bounds)
+        .range(bounds.0)
         .ticks(plotly::layout::TicksDirection::Outside);
 
     let y_axis = Axis::new()
@@ -100,62 +103,64 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
         .grid_color(PRIMITIVE_GREY)
         .zero_line(false)
         .show_line(true)
-        .color(PRIMITIVE_WHITE)
-        .line_color(PRIMITIVE_WHITE)
         .tick_prefix(r"$")
         .tick_suffix(r"$")
         .tick_font(Font::new().size(24))
         .auto_margin(false)
-        .range(y_bounds)
+        .range(bounds.1)
         .ticks(plotly::layout::TicksDirection::Outside);
 
-    let title_text = "";
-    if transparent {
-        println!("got here?");
-        let layout = plotly::Layout::new()
-            .title(plotly::common::Title::new(plot_name.as_str()))
-            .x_axis(x_axis)
-            .y_axis(y_axis)
-            .width(1600)
-            .height(900)
+    let (x_axis, y_axis) = match display_mode {
+        DisplayMode::Light => (
+            x_axis.color(PRIMITIVE_BLACK).line_color(PRIMITIVE_BLACK),
+            y_axis.color(PRIMITIVE_BLACK).line_color(PRIMITIVE_BLACK),
+        ),
+        DisplayMode::Dark => (
+            x_axis.color(PRIMITIVE_WHITE).line_color(PRIMITIVE_WHITE),
+            y_axis.color(PRIMITIVE_WHITE).line_color(PRIMITIVE_WHITE),
+        ),
+    };
+
+    let layout = plotly::Layout::new()
+        .title(plotly::common::Title::new(plot_name.as_str()))
+        .x_axis(x_axis)
+        .y_axis(y_axis)
+        .width(1600)
+        .height(900)
+        .show_legend(true)
+        .margin(Margin::new().bottom(100).left(100).top(100).right(100));
+    let layout = match transparent {
+        true => layout
             .plot_background_color("rgba(0,0,0,0)")
-            .paper_background_color("rgba(0,0,0,0)")
-            .show_legend(true)
+            .paper_background_color("rgba(0,0,0,0)"),
+        false => match display_mode {
+            DisplayMode::Dark => layout
+                .plot_background_color(PRIMITIVE_BLACK)
+                .paper_background_color(PRIMITIVE_BLACK),
+            DisplayMode::Light => layout
+                .plot_background_color(PRIMITIVE_WHITE)
+                .paper_background_color(PRIMITIVE_WHITE),
+        },
+    };
+    let layout = match display_mode {
+        DisplayMode::Dark => layout
             .legend(
                 Legend::new()
                     .font(Font::new().color(PRIMITIVE_WHITE).size(24))
                     .x(0.75)
-                    .y(0.75)
-                    .background_color("rgba(0,0,0,0)")
-                    .border_width(0)
-                    .orientation(plotly::common::Orientation::Vertical)
-                    .trace_group_gap(10),
+                    .y(0.75),
             )
-            .margin(Margin::new().bottom(100).left(100).top(100).right(100));
-        plot.set_layout(layout);
-    } else {
-        let layout = plotly::Layout::new()
-            .title(plotly::common::Title::new(title_text).font(Font::new().color(PRIMITIVE_WHITE)))
-            .x_axis(x_axis)
-            .y_axis(y_axis)
-            .width(1600)
-            .height(900)
-            .plot_background_color(PRIMITIVE_BLACK)
-            .paper_background_color(PRIMITIVE_BLACK)
-            .show_legend(true)
+            .font(Font::new().color(PRIMITIVE_WHITE)),
+        DisplayMode::Light => layout
             .legend(
                 Legend::new()
-                    .font(Font::new().color(PRIMITIVE_WHITE).size(32))
+                    .font(Font::new().color(PRIMITIVE_BLACK).size(24))
                     .x(0.75)
-                    .y(0.75)
-                    .background_color("rgba(0,0,0,0)")
-                    .border_width(0)
-                    .orientation(plotly::common::Orientation::Vertical),
+                    .y(0.75),
             )
-            .margin(Margin::new().bottom(100).left(100).top(100).right(100));
-        plot.set_layout(layout);
-    }
-
+            .font(Font::new().color(PRIMITIVE_BLACK)),
+    };
+    plot.set_layout(layout);
     plot.write_html(plot_name.as_str().to_owned() + ".html");
     if show {
         plot.show();
