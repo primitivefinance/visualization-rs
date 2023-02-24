@@ -26,6 +26,11 @@ pub enum Emphasis {
     Heavy,
 }
 
+pub struct Labels {
+    pub x_label: String,
+    pub y_label: String,
+}
+
 pub const MAIN_COLOR_SLOT: usize = 5;
 
 pub const PRIMITIVE_GREENS: [&str; 10] = [
@@ -58,6 +63,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
     legend_names: Option<Vec<String>>,
     colors: Vec<(Color, usize, Emphasis, bool)>,
     (transparent, display_mode, show): (bool, DisplayMode, bool),
+    labels: Labels,
 ) {
     let mut plot = Plot::new();
     for i in 0..curves.0.len() {
@@ -87,7 +93,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
         plot.add_trace(trace);
     }
     let x_axis = Axis::new()
-        .title(Title::new("$x$").font(Font::new().size(24)))
+        .title(Title::new(&labels.x_label).font(Font::new().size(24)))
         .show_grid(true)
         .grid_color(PRIMITIVE_GREYS[MAIN_COLOR_SLOT])
         .zero_line(false)
@@ -101,7 +107,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
         .ticks(plotly::layout::TicksDirection::Outside);
 
     let y_axis = Axis::new()
-        .title(Title::new("$y$").font(Font::new().size(24)))
+        .title(Title::new(&labels.y_label).font(Font::new().size(24)))
         .show_grid(true)
         .grid_color(PRIMITIVE_GREYS[MAIN_COLOR_SLOT])
         .zero_line(false)
