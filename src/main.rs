@@ -13,12 +13,12 @@ fn main() {
     let display_mode = DisplayMode::Light;
     let show = true;
 
-    // ------------------ Plotting Plot 3 ------------------ //
-    // Plot RMM trading curve for multiple taus from a list of prices
+    // ------------------ Plotting Plot 5 ------------------ //
+    // Plot RMM liquidity distribution for multiple taus
     let plot_name = "$\\text{RMM Liquidity Distribution}$".to_string();
     let strike = 3_f64;
     let sigma = 0.5_f64;
-    let taus: Vec<f64> = linspace(2.0, 0.1, 5).collect::<Vec<f64>>();
+    let taus: Vec<f64> = vec![2.0_f64, 1.5_f64, 1.0_f64, 0.5_f64, 0.1_f64];
     let p_0 = 0.0_f64;
     let p_1 = 10.0_f64;
     let n = 1000;
@@ -50,7 +50,7 @@ fn main() {
         "$\\tau=1.5$".to_string(),
         "$\\tau=1.0$".to_string(),
         "$\\tau=0.5$".to_string(),
-        "$\\tau=0.1$".to_string(),
+        "$\\tau=0.0$".to_string(),
     ];
     let labels = Labels {
         x_label: "$R_x$".to_string(),
