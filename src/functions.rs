@@ -34,6 +34,7 @@ pub fn rmm_trading_curve(
     strike: f64,
     sigma: f64,
     tau: f64,
+    scaling: Option<f64>
 ) -> (Vec<f64>, Vec<f64>) {
     let n = prices.len();
     let (mut x, mut y) = (Vec::with_capacity(n), Vec::with_capacity(n));
@@ -41,8 +42,8 @@ pub fn rmm_trading_curve(
     let d2 = d_two(prices, strike, sigma, tau);
     let normal = NormalDist::new(0.0, 1.0).unwrap();
     for i in 0..n {
-        x.push(1.0 - normal.cdf(d1[i]));
-        y.push(strike * normal.cdf(d2[i]));
+        x.push(scaling.unwrap_or(1.0)*(1.0 - normal.cdf(d1[i])));
+        y.push(scaling.unwrap_or(1.0)*strike * normal.cdf(d2[i]));
     }
     (x, y)
 }
@@ -82,4 +83,14 @@ pub fn factorial(n: u32) -> u32 {
         f *= i;
     }
     f
+}
+
+pub fn parametric_line(t: Vec<f64>, a: f64, b: f64, x_0: f64, y_0: f64) -> (Vec<f64>,Vec<f64>) {
+    let mut x = Vec::with_capacity(t.len());
+    let mut y = Vec::with_capacity(t.len());
+    for t_val in &t {
+        x.push(a * t_val + x_0);
+        y.push(b * t_val + y_0);
+    }
+    (x,y)
 }
