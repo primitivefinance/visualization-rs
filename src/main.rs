@@ -44,15 +44,15 @@ fn main() {
         (Color::Green, plot::MAIN_COLOR_SLOT, Emphasis::Heavy, single_color),
     ];
     let legend_names = vec![
-        "$\\tau=2.0$".to_string(),
-        "$\\tau=1.5$".to_string(),
-        "$\\tau=1.0$".to_string(),
-        "$\\tau=0.5$".to_string(),
-        "$\\tau=0.0$".to_string(),
+        "$\\Large{\\tau=2.0}$".to_string(),
+        "$\\Large{\\tau=1.5}$".to_string(),
+        "$\\Large{\\tau=1.0}$".to_string(),
+        "$\\Large{\\tau=0.5}$".to_string(),
+        "$\\Large{\\tau=0.0}$".to_string(),
     ];
     let labels = Labels {
-        x_label: "$S$".to_string(),
-        y_label: "$V(S)$".to_string(),
+        x_label: "$\\Large{S}$".to_string(),
+        y_label: "$\\Large{V(S)}$".to_string(),
     };
     plot::transparent_plot(
         (x, y),
