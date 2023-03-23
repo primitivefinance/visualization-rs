@@ -157,8 +157,8 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
                 .legend(
                     Legend::new()
                         .font(Font::new().color(PRIMITIVE_WHITE).size(24))
-                        .x(0.75)
-                        .y(0.75),
+                        .x(0.9)
+                        .y(0.9),
                 )
                 .font(Font::new().color(PRIMITIVE_WHITE)),
             DisplayMode::Light => layout

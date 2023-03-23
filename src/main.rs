@@ -1,5 +1,6 @@
 use std::ops::Div;
 
+use functions::standard_gaussian_cdf;
 use itertools_num::linspace;
 use statrs::{consts, function};
 
@@ -10,15 +11,15 @@ use plot::{Color, DisplayMode, Emphasis, Labels};
 fn main() {
     // Global Toggle Variables
     let transparent = true;
-    let display_mode = DisplayMode::Light;
+    let display_mode = DisplayMode::Dark;
     let show = true;
 
-    // ------------------ Plotting Plot 5 ------------------ //
-    // Plot RMM liquidity distribution for multiple taus
-    let plot_name = "$\\text{RMM Liquidity Distribution}$".to_string();
+    // ------------------ Plotting Plot 6 ------------------ //
+    // Plot RMM portfolio value for multiple taus
+    let plot_name = "$\\text{RMM Portfolio Value}$".to_string();
     let strike = 3_f64;
     let sigma = 0.5_f64;
-    let taus: Vec<f64> = vec![2.0_f64, 1.5_f64, 1.0_f64, 0.5_f64, 0.1_f64];
+    let taus: Vec<f64> = vec![2.0_f64, 1.5_f64, 1.0_f64, 0.5_f64, 0_f64];
     let p_0 = 0.0_f64;
     let p_1 = 10.0_f64;
     let n = 1000;
@@ -27,16 +28,13 @@ fn main() {
     let mut y: Vec<Vec<f64>> = Vec::new();
     for tau in &taus {
         x.push(prices.clone());
-        let temp = functions::standard_gaussian_pdf(functions::d_one(prices.clone(), strike, sigma, *tau));
-        let temp = temp.iter().map(|x| x / (sigma * tau.sqrt())).collect::<Vec<f64>>();
-        let mut temp1: Vec<f64> = Vec::new();
-        for (i, y_val) in temp.iter().enumerate() {
-            temp1.push(y_val / prices[i]);
-        }
-        y.push(temp1);
+        let temp1 = prices.iter().zip(functions::standard_gaussian_cdf(functions::d_one(prices.clone(), strike, sigma, *tau).iter().map(|d1| -d1).collect()).iter()).map(|(&x, &y)| x * y).collect::<Vec<f64>>();
+        let temp2=  functions::standard_gaussian_cdf(functions::d_two(prices.clone(), strike, sigma, *tau));
+        y.push(temp1.iter().zip(temp2.iter()).map(|(&x, &y)| x + strike * y).collect()); 
+        // y.push(functions::d_one(prices.clone(), strike, sigma, *tau));
     };
     let x_bounds = vec![0_f64, 10_f64];
-    let y_bounds = vec![0_f64, 1_f64];
+    let y_bounds = vec![0_f64, 5_f64];
     let single_color = false;
     let colors = vec![
         (Color::Green, 0, Emphasis::Light, single_color),
@@ -53,8 +51,8 @@ fn main() {
         "$\\tau=0.0$".to_string(),
     ];
     let labels = Labels {
-        x_label: "$R_x$".to_string(),
-        y_label: "$R_y$".to_string(),
+        x_label: "$S$".to_string(),
+        y_label: "$V(S)$".to_string(),
     };
     plot::transparent_plot(
         (x, y),
