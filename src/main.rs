@@ -16,7 +16,7 @@ fn main() {
 
     // ------------------ Plotting Plot 6 ------------------ //
     // Plot RMM portfolio value for multiple taus
-    let plot_name = "$\\text{RMM Portfolio Value}$".to_string();
+    let plot_name = "\\text{RMM Portfolio Value}".to_string();
     let strike = 3_f64;
     let sigma = 0.5_f64;
     let taus: Vec<f64> = vec![2.0_f64, 1.5_f64, 1.0_f64, 0.5_f64, 0_f64];
@@ -33,6 +33,13 @@ fn main() {
         y.push(temp1.iter().zip(temp2.iter()).map(|(&x, &y)| x + strike * y).collect()); 
         // y.push(functions::d_one(prices.clone(), strike, sigma, *tau));
     };
+    let mut x_single = Vec::new();
+    for _i in 0..prices.len() {
+        x_single.push(strike);
+    }
+    let y_single = linspace(0_f64, 5_f64, n);
+    x.push(x_single);
+    y.push(y_single.collect());
     let x_bounds = vec![0_f64, 10_f64];
     let y_bounds = vec![0_f64, 5_f64];
     let single_color = false;
@@ -42,17 +49,19 @@ fn main() {
         (Color::Green, 2, Emphasis::Light, single_color),
         (Color::Green, 3, Emphasis::Light, single_color),
         (Color::Green, plot::MAIN_COLOR_SLOT, Emphasis::Heavy, single_color),
+        (Color::Grey, plot::MAIN_COLOR_SLOT, Emphasis::Dashed, single_color),
     ];
     let legend_names = vec![
-        "$\\Large{\\tau=2.0}$".to_string(),
-        "$\\Large{\\tau=1.5}$".to_string(),
-        "$\\Large{\\tau=1.0}$".to_string(),
-        "$\\Large{\\tau=0.5}$".to_string(),
-        "$\\Large{\\tau=0.0}$".to_string(),
+        "\\tau=2.0".to_string(),
+        "\\tau=1.5".to_string(),
+        "\\tau=1.0".to_string(),
+        "\\tau=0.5".to_string(),
+        "\\tau=0.0".to_string(),
+        "\\text{Strike}".to_string(),
     ];
     let labels = Labels {
-        x_label: "$\\Large{S}$".to_string(),
-        y_label: "$\\Large{V(S)}$".to_string(),
+        x_label: "S".to_string(),
+        y_label: "V(S)".to_string(),
     };
     plot::transparent_plot(
         (x, y),

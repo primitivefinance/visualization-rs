@@ -24,6 +24,7 @@ pub enum Color {
 pub enum Emphasis {
     Light,
     Heavy,
+    Dashed,
 }
 
 pub struct Labels {
@@ -82,37 +83,39 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
         let line = match &color.2 {
             Emphasis::Light => line.width(2.0),
             Emphasis::Heavy => line.width(4.0),
+            Emphasis::Dashed => line.width(2.0).dash(plotly::common::DashType::Dash),
         };
         let trace = Scatter::new(curves.0[i].clone(), curves.1[i].clone())
             .mode(Mode::Lines)
             .line(line)
             .name(&match &legend_names {
-                Some(names) => names[i].clone(),
+                Some(names) => format!(" {} {} {}", "$\\Large{", names[i].clone(), "}$"),
                 None => "".to_string(),
             });
         plot.add_trace(trace);
     }
+    let x_label = format!("{} {} {}", "$\\LARGE{", labels.x_label.clone(), "}$");
     let x_axis = Axis::new()
-        .title(Title::new(&labels.x_label).font(Font::new().size(24)))
+        .title(Title::new(&x_label).font(Font::new().size(24)))
         .show_grid(true)
         .grid_color(PRIMITIVE_GREYS[MAIN_COLOR_SLOT])
         .zero_line(false)
         .color(PRIMITIVE_WHITE)
         .line_color(PRIMITIVE_WHITE)
-        .tick_prefix(r"$\huge{")
+        .tick_prefix(r"$\LARGE{")
         .tick_suffix(r"}$")
         .tick_font(Font::new().size(24))
         .auto_margin(false)
         .range(bounds.0)
         .ticks(plotly::layout::TicksDirection::Outside);
-
+    let y_label = format!("{} {} {}", "$\\LARGE{", labels.y_label.clone(), "}$");
     let y_axis = Axis::new()
-        .title(Title::new(&labels.y_label).font(Font::new().size(24)))
+        .title(Title::new(&y_label).font(Font::new().size(24)))
         .show_grid(true)
         .grid_color(PRIMITIVE_GREYS[MAIN_COLOR_SLOT])
         .zero_line(false)
         .show_line(true)
-        .tick_prefix(r"$\huge{")
+        .tick_prefix(r"$\LARGE{")
         .tick_suffix(r"}$")
         .tick_font(Font::new().size(24))
         .auto_margin(false)
@@ -129,7 +132,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
             y_axis.color(PRIMITIVE_WHITE).line_color(PRIMITIVE_WHITE),
         ),
     };
-
+    let plot_name = format!("{} {} {}", "$\\huge{", plot_name, "}$");
     let layout = plotly::Layout::new()
         .title(plotly::common::Title::new(plot_name.as_str()))
         .x_axis(x_axis)
@@ -165,8 +168,8 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
                 .legend(
                     Legend::new()
                         .font(Font::new().color(PRIMITIVE_BLACK).size(24))
-                        .x(0.75)
-                        .y(0.75),
+                        .x(0.9)
+                        .y(0.9),
                 )
                 .font(Font::new().color(PRIMITIVE_BLACK)),
         },
