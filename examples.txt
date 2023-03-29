@@ -255,3 +255,32 @@
         (transparent, display_mode, show),
         labels,
     );
+    // Plot 1: Portfolio Value Function V(S) = S²
+    let s_values: Vec<f64> = (0..=100).map(|x| x as f64).collect();
+    let v_values: Vec<f64> = s_values.iter().map(|&s| s * s).collect();
+    let curves = (vec![s_values], vec![v_values]);
+    
+
+    let x_bounds = vec![0.0, 40.0];
+    let y_bounds = vec![0.0, 1000.0];
+    let bounds = (x_bounds, y_bounds);
+
+    let plot_name = "Portfolio Value Function: V(S) = S²".to_string();
+
+    let legend_names = Some(vec!["V(S) = S²".to_string()]);
+    let colors = vec![(Color::Green, plot::MAIN_COLOR_SLOT, Emphasis::Heavy, true)];
+
+    let labels = Labels {
+        x_label: "$S^2$".to_string(),
+        y_label: "$V(S)$".to_string(),
+    };
+
+    plot::transparent_plot(
+        (curves),
+        (bounds.0, bounds.1),
+        plot_name,
+        legend_names,
+        colors,
+        (transparent, display_mode, show),
+        labels,
+    );
