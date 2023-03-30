@@ -1,6 +1,6 @@
 use plotly::{
-    common::{Font, Line, Mode, Title},
-    layout::{Axis, Legend},
+    common::{Font, Line, Mode, Title, Pad},
+    layout::{Axis, Legend, TicksPosition},
 };
 use plotly::{layout::Margin, Plot, Scatter};
 use serde::ser::Serialize;
@@ -102,21 +102,21 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
         .zero_line(false)
         .color(PRIMITIVE_WHITE)
         .line_color(PRIMITIVE_WHITE)
-        .tick_prefix(r"$\LARGE{")
-        .tick_suffix(r"}$")
+        .tick_prefix("$\\LARGE{")
+        .tick_suffix("}$")
         .tick_font(Font::new().size(24))
         .auto_margin(false)
         .range(bounds.0)
         .ticks(plotly::layout::TicksDirection::Outside);
     let y_label = format!("{} {} {}", "$\\LARGE{", labels.y_label.clone(), "}$");
     let y_axis = Axis::new()
-        .title(Title::new(&y_label).font(Font::new().size(24)))
+        .title(Title::new(&y_label).font(Font::new().size(48)))
         .show_grid(true)
         .grid_color(PRIMITIVE_GREYS[MAIN_COLOR_SLOT])
         .zero_line(false)
         .show_line(true)
-        .tick_prefix(r"$\LARGE{")
-        .tick_suffix(r"}$")
+        .tick_prefix("$\\LARGE{")
+        .tick_suffix("}$")
         .tick_font(Font::new().size(24))
         .auto_margin(false)
         .range(bounds.1)
@@ -139,7 +139,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
         .y_axis(y_axis)
         .width(1600)
         .height(900)
-        .margin(Margin::new().bottom(100).left(100).top(100).right(100));
+        .margin(Margin::new().bottom(100).left(160).top(100).right(100));
     let layout = match transparent {
         true => layout
             .plot_background_color("rgba(0,0,0,0)")
@@ -160,16 +160,16 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
                 .legend(
                     Legend::new()
                         .font(Font::new().color(PRIMITIVE_WHITE).size(24))
-                        .x(0.9)
-                        .y(0.9),
+                        .x(0.7)
+                        .y(0.7),
                 )
                 .font(Font::new().color(PRIMITIVE_WHITE)),
             DisplayMode::Light => layout
                 .legend(
                     Legend::new()
                         .font(Font::new().color(PRIMITIVE_BLACK).size(24))
-                        .x(0.9)
-                        .y(0.9),
+                        .x(0.7)
+                        .y(0.7),
                 )
                 .font(Font::new().color(PRIMITIVE_BLACK)),
         },

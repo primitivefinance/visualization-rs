@@ -14,54 +14,52 @@ fn main() {
     let display_mode = DisplayMode::Dark;
     let show = true;
 
-    // ------------------ Plotting Plot 6 ------------------ //
-    // Plot RMM portfolio value for multiple taus
-    let plot_name = "\\text{RMM Portfolio Value}".to_string();
-    let strike = 3_f64;
-    let sigma = 0.5_f64;
-    let taus: Vec<f64> = vec![2.0_f64, 1.5_f64, 1.0_f64, 0.5_f64, 0_f64];
-    let p_0 = 0.0_f64;
-    let p_1 = 10.0_f64;
-    let n = 1000;
-    let prices = linspace(p_0, p_1, n).collect::<Vec<f64>>();
-    let mut x: Vec<Vec<f64>> = Vec::new();
-    let mut y: Vec<Vec<f64>> = Vec::new();
-    for tau in &taus {
-        x.push(prices.clone());
-        let temp1 = prices.iter().zip(functions::standard_gaussian_cdf(functions::d_one(prices.clone(), strike, sigma, *tau).iter().map(|d1| -d1).collect()).iter()).map(|(&x, &y)| x * y).collect::<Vec<f64>>();
-        let temp2=  functions::standard_gaussian_cdf(functions::d_two(prices.clone(), strike, sigma, *tau));
-        y.push(temp1.iter().zip(temp2.iter()).map(|(&x, &y)| x + strike * y).collect()); 
-        // y.push(functions::d_one(prices.clone(), strike, sigma, *tau));
-    };
-    let mut x_single = Vec::new();
-    for _i in 0..prices.len() {
-        x_single.push(strike);
-    }
-    let y_single = linspace(0_f64, 5_f64, n);
-    x.push(x_single);
-    y.push(y_single.collect());
-    let x_bounds = vec![0_f64, 10_f64];
-    let y_bounds = vec![0_f64, 5_f64];
+    // ------------------ Plotting Plot 0 ------------------ //
+    // Plot of different types of approximations to the Gaussian PDF
+    let plot_name = "".to_string();
+    let (mut x, mut y) = (vec![], vec![]);
+    let x_bounds = vec![-5.0, 5.0];
+    let y_bounds = vec![-0.5, 1.5];
+    let number_of_points = 1000;
+    let x_input = linspace(x_bounds[0], x_bounds[1], number_of_points).collect::<Vec<f64>>();
+    x.push(x_input.clone());
+    y.push(x_input.iter().map(|x| 1.0 - x * x).collect::<Vec<f64>>());
+    x.push(x_input.clone());
+    y.push(
+        x_input
+            .iter()
+            .map(|x| 1.0 / (1.0 + x * x))
+            .collect::<Vec<f64>>(),
+    );
+    x.push(x_input.clone());
+    let y_temp = functions::standard_gaussian_pdf(
+        x_input
+            .iter()
+            .map(|x| x * 2.0_f64.sqrt())
+            .collect::<Vec<f64>>(),
+    );
+    y.push(
+        y_temp
+            .iter()
+            .map(|y| consts::SQRT_2PI * y)
+            .collect::<Vec<f64>>(),
+    );
     let single_color = false;
     let colors = vec![
-        (Color::Green, 0, Emphasis::Light, single_color),
-        (Color::Green, 1, Emphasis::Light, single_color),
-        (Color::Green, 2, Emphasis::Light, single_color),
-        (Color::Green, 3, Emphasis::Light, single_color),
+        (Color::Purple, plot::MAIN_COLOR_SLOT, Emphasis::Light, single_color),
+        (Color::Blue, plot::MAIN_COLOR_SLOT, Emphasis::Light, single_color),
         (Color::Green, plot::MAIN_COLOR_SLOT, Emphasis::Heavy, single_color),
-        (Color::Grey, plot::MAIN_COLOR_SLOT, Emphasis::Dashed, single_color),
     ];
+
+    // TODO: Add legend positioning here
     let legend_names = vec![
-        "\\tau=2.0".to_string(),
-        "\\tau=1.5".to_string(),
-        "\\tau=1.0".to_string(),
-        "\\tau=0.5".to_string(),
-        "\\tau=0.0".to_string(),
-        "\\text{Strike}".to_string(),
+        "1-x^2".to_string(),
+        "(1-x^2)^{-1}".to_string(),
+        "\\exp\\left(-x^2\\right)".to_string(),
     ];
     let labels = Labels {
-        x_label: "S".to_string(),
-        y_label: "V(S)".to_string(),
+        x_label: "x".to_string(),
+        y_label: "f(x)".to_string(),
     };
     plot::transparent_plot(
         (x, y),
