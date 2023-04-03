@@ -1,9 +1,16 @@
 use plotly::{
-    common::{Font, Line, Mode, Title, Pad},
+    common::{Font, Line, Mode, Pad, Title},
     layout::{Axis, Legend, TicksPosition},
 };
 use plotly::{layout::Margin, Plot, Scatter};
 use serde::ser::Serialize;
+
+// testing
+use itertools_num::linspace;
+use plotly::color::{NamedColor, Rgb, Rgba};
+use plotly::common::{ColorScale, ColorScalePalette, DashType, Fill, LineShape, Marker};
+use plotly::layout::{BarMode, Layout, TicksDirection};
+use rand_distr::{Distribution, Normal, Uniform};
 
 #[derive(Copy, Clone)]
 pub enum DisplayMode {
@@ -182,3 +189,137 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
         plot.show();
     }
 }
+
+pub fn fill_between_curves<T: Serialize + Clone + 'static>(
+    curves: ((Vec<Vec<T>>, Vec<Vec<T>>),(Vec<Vec<T>>, Vec<Vec<T>>)),
+    bounds: (Vec<f64>, Vec<f64>),
+    plot_name: String,
+    legend_names: Option<Vec<String>>,
+    colors: Vec<(Color, usize, Emphasis, bool)>,
+    (transparent, display_mode, show): (bool, DisplayMode, bool),
+    labels: Labels,
+) {
+    // Initial x vecs
+    let x1_coords = curves.0.0[0].clone();
+    let x2_coords = curves.1.0[0].clone();
+    let x_thing = x2_coords.iter().cloned().rev().collect::<Vec<T>>();
+    // Append thing to x1_coords to create a new vector
+    let x_combined = x1_coords.into_iter().chain(x_thing.into_iter()).collect::<Vec<T>>();
+
+    // Initial y vecs
+    let y1_coords = curves.0.1[0].clone();
+    let y2_coords = curves.1.1[0].clone();
+    let y_thing = y2_coords.iter().cloned().rev().collect::<Vec<T>>();
+    // Append thing to x1_coords to create a new vector
+    let y_combined = y1_coords.into_iter().chain(y_thing.into_iter()).collect::<Vec<T>>();
+
+    let trace = Scatter::new(
+        x_combined,
+        y_combined,
+    )
+    .fill(Fill::ToNext)
+    .fill_color(Rgba::new(0, 176, 246, 0.2))
+    .line(Line::new().color(NamedColor::Transparent))
+    .name("Premium")
+    .show_legend(true);
+
+    // y=x line
+    // let trace_yx = Scatter::new(x1.clone(), x2.clone())
+    //     .line(Line::new().color(NamedColor::Black).width(2.0))
+    //     .name("No leverage")
+    //     .show_legend(true);
+
+    let layout = Layout::new()
+        .paper_background_color(Rgb::new(255, 255, 255))
+        .plot_background_color(Rgb::new(229, 229, 229))
+        .x_axis(
+            Axis::new()
+                .grid_color(Rgb::new(255, 255, 255))
+                .range(vec![0.0, 5.0])
+                .show_grid(true)
+                .show_line(false)
+                .show_tick_labels(true)
+                .tick_color(Rgb::new(127, 127, 127))
+                .ticks(TicksDirection::Outside)
+                .zero_line(false),
+        )
+        .y_axis(
+            Axis::new()
+                .grid_color(Rgb::new(255, 255, 255))
+                .show_grid(true)
+                .show_line(false)
+                .show_tick_labels(true)
+                .tick_color(Rgb::new(127, 127, 127))
+                .ticks(TicksDirection::Outside)
+                .zero_line(false),
+        );
+
+    let mut plot = Plot::new();
+    plot.set_layout(layout);
+    plot.add_trace(trace);
+    if show {
+        plot.show();
+    }
+    println!("{}", plot.to_inline_html(Some("filled_lines")));
+}
+
+// pub fn filled_lines(show: bool) {
+//     // Initial vecs
+//     // let mut x1 = vec![0.0, 0.0, 1.0, 1.0, 2.0, 2.0, 3.0, 3.0, 4.0, 4.0];
+//     let x1 = vec![0.0, 1.0, 2.0, 3.0, 4.0, 4.0, 3.0, 2.0, 1.0, 0.0];
+
+//     let trace2 = Scatter::new(
+//         x1.clone(),
+//         vec![
+//             10.0, 10.0, 10.0, 10.0, 10.0, 4.0, 3.0, 2.0, 1.0, 0.0,
+//         ],
+//     )
+//     .fill(Fill::ToNext)
+//     .fill_color(Rgba::new(0, 176, 246, 0.2))
+//     .line(Line::new().color(NamedColor::Transparent))
+//     .name("Premium")
+//     .show_legend(true);
+
+//     // y=x line
+//     // let trace_yx = Scatter::new(x1.clone(), x2.clone())
+//     //     .line(Line::new().color(NamedColor::Black).width(2.0))
+//     //     .name("No leverage")
+//     //     .show_legend(true);
+
+//     let layout = Layout::new()
+//         .paper_background_color(Rgb::new(255, 255, 255))
+//         .plot_background_color(Rgb::new(229, 229, 229))
+//         .x_axis(
+//             Axis::new()
+//                 .grid_color(Rgb::new(255, 255, 255))
+//                 .range(vec![0.0, 5.0])
+//                 .show_grid(true)
+//                 .show_line(false)
+//                 .show_tick_labels(true)
+//                 .tick_color(Rgb::new(127, 127, 127))
+//                 .ticks(TicksDirection::Outside)
+//                 .zero_line(false),
+//         )
+//         .y_axis(
+//             Axis::new()
+//                 .grid_color(Rgb::new(255, 255, 255))
+//                 .show_grid(true)
+//                 .show_line(false)
+//                 .show_tick_labels(true)
+//                 .tick_color(Rgb::new(127, 127, 127))
+//                 .ticks(TicksDirection::Outside)
+//                 .zero_line(false),
+//         );
+
+//     let mut plot = Plot::new();
+//     plot.set_layout(layout);
+//     // plot.add_trace(trace1);
+//     // plot.add_trace(bottom_trace1);
+//     plot.add_trace(trace2);
+//     // plot.add_trace(trace3);
+//     // plot.add_trace(trace_yx);
+//     if show {
+//         plot.show();
+//     }
+//     println!("{}", plot.to_inline_html(Some("filled_lines")));
+// }
