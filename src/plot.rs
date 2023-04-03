@@ -116,7 +116,10 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
                         Some(names) => format!(" {} {} {}", "$\\Large{", names[i].clone(), "}$"),
                         None => "".to_string(),
                     })
-                    .show_legend(true);
+                    .show_legend(match &regions.3 {
+                        Some(_) => true,
+                        None => false,
+                    });
                 plot.add_trace(trace);
             }
         }
@@ -148,6 +151,10 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
                     .name(&match &curves.3 {
                         Some(names) => format!(" {} {} {}", "$\\Large{", names[i].clone(), "}$"),
                         None => "".to_string(),
+                    })
+                    .show_legend(match &curves.3 {
+                        Some(_) => true,
+                        None => false,
                     });
                 plot.add_trace(trace);
             }
@@ -213,8 +220,9 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
                 .paper_background_color(PRIMITIVE_WHITE),
         },
     };
-    let layout = match curves.unwrap().3.or(regions.unwrap().3) {
-        Some(_) => match display_mode {
+    // let layout = match curves.unwrap().3.or(regions.unwrap().3) {
+    //     Some(_) =>
+    let layout = match display_mode {
             DisplayMode::Dark => layout
                 .show_legend(true)
                 .legend(
@@ -232,9 +240,9 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
                         .y(0.7),
                 )
                 .font(Font::new().color(PRIMITIVE_BLACK)),
-        },
-        None => layout.show_legend(false),
-    };
+        };
+    //     None => layout.show_legend(false),
+    // };
 
     plot.set_layout(layout);
     plot.write_html(plot_name.as_str().to_owned() + ".html");

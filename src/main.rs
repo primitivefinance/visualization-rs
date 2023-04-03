@@ -11,11 +11,11 @@ use plot::{Color, DisplayMode, Emphasis, Labels};
 fn main() {
     // Global Toggle Variables
     let transparent = true;
-    let display_mode = DisplayMode::Dark;
+    let display_mode = DisplayMode::Light;
     let show = true;
 
     // ------------------ Plotting Plot 7 ------------------ //
-    let plot_name = "\\text{Leverage Zones}".to_string();
+    let plot_name = "\\text{Convex Portfolio Value Function}".to_string();
     let (mut x, mut y, mut x1, mut y1, mut x2, mut y2) = (vec![], vec![], vec![], vec![], vec![], vec![]);
     let x_bounds = vec![0.0, 5.0];
     let y_bounds = vec![0.0, 5.0];
@@ -83,8 +83,8 @@ fn main() {
     };
 
     plot::transparent_plot(
-        Some((x,y, curve_colors, Some(curve_legend_names))),
-        Some(((x1, y1), (x2, y2), region_colors, Some(region_legend_names))),
+        Some((x, y, curve_colors, Some(curve_legend_names))),
+        Some(((x1, y1), (x2, y2), region_colors, None)),
         (x_bounds, y_bounds),
         plot_name,
         (transparent, display_mode, show),
