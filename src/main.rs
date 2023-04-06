@@ -89,4 +89,5 @@ fn main() {
         (transparent, display_mode, show),
         labels,
     );
+
 }
