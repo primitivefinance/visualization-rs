@@ -1,9 +1,16 @@
 use plotly::{
-    common::{Font, Line, Mode, Title, Pad},
-    layout::{Axis, Legend, TicksPosition},
+    common::{Font, Line, Mode, Pad, Title},
+    layout::{Axis, Legend, TicksPosition}, Configuration,
 };
 use plotly::{layout::Margin, Plot, Scatter};
 use serde::ser::Serialize;
+
+// testing
+use itertools_num::linspace;
+use plotly::color::{NamedColor, Rgb, Rgba};
+use plotly::common::{ColorScale, ColorScalePalette, DashType, Fill, LineShape, Marker};
+use plotly::layout::{BarMode, Layout, TicksDirection};
+use rand_distr::{Distribution, Normal, Uniform};
 
 #[derive(Copy, Clone)]
 pub enum DisplayMode {
@@ -58,41 +65,101 @@ pub const PRIMITIVE_BLACK: &str = "151718";
 pub const PRIMITIVE_WHITE: &str = "FFFFFF";
 
 pub fn transparent_plot<T: Serialize + Clone + 'static>(
-    curves: (Vec<Vec<T>>, Vec<Vec<T>>),
+    curves: Option<(Vec<Vec<T>>, Vec<Vec<T>>, Vec<(Color, usize, Emphasis, bool)>, Option<Vec<String>>)>,
+    regions: Option<((Vec<Vec<T>>, Vec<Vec<T>>), (Vec<Vec<T>>, Vec<Vec<T>>), Vec<(Color, usize, Emphasis, bool)>, Option<Vec<String>>)>,
     bounds: (Vec<f64>, Vec<f64>),
     plot_name: String,
-    legend_names: Option<Vec<String>>,
-    colors: Vec<(Color, usize, Emphasis, bool)>,
     (transparent, display_mode, show): (bool, DisplayMode, bool),
     labels: Labels,
 ) {
     let mut plot = Plot::new();
-    for i in 0..curves.0.len() {
-        let color = match &colors[0].3 {
-            true => &colors[0],
-            false => &colors[i],
-        };
-        let line = match color.0 {
-            Color::Green => Line::new().color(PRIMITIVE_GREENS[color.1]),
-            Color::Blue => Line::new().color(PRIMITIVE_BLUES[color.1]),
-            Color::Purple => Line::new().color(PRIMITIVE_PURPLES[color.1]),
-            Color::Grey => Line::new().color(PRIMITIVE_GREYS[color.1]),
-            Color::Black => Line::new().color(PRIMITIVE_BLACK),
-            Color::White => Line::new().color(PRIMITIVE_WHITE),
-        };
-        let line = match &color.2 {
-            Emphasis::Light => line.width(2.0),
-            Emphasis::Heavy => line.width(4.0),
-            Emphasis::Dashed => line.width(2.0).dash(plotly::common::DashType::Dash),
-        };
-        let trace = Scatter::new(curves.0[i].clone(), curves.1[i].clone())
-            .mode(Mode::Lines)
-            .line(line)
-            .name(&match &legend_names {
-                Some(names) => format!(" {} {} {}", "$\\Large{", names[i].clone(), "}$"),
-                None => "".to_string(),
-            });
-        plot.add_trace(trace);
+    // TODO: Below should be put into a helper function
+    match regions.as_ref() {
+        Some(regions) => {
+            for i in 0..regions.0 .0.len() {
+                let color = match &regions.2[0].3 {
+                    true => &regions.2[0],
+                    false => &regions.2[i],
+                };
+                let color = match color.0 {
+                    Color::Green => format!("{}AA", PRIMITIVE_GREENS[color.1]),
+                    Color::Blue => format!("{}AA", PRIMITIVE_BLUES[color.1]),
+                    Color::Purple => format!("{}AA", PRIMITIVE_PURPLES[color.1]),
+                    Color::Grey => format!("{}AA", PRIMITIVE_GREYS[color.1]),
+                    Color::Black => format!("{}AA", PRIMITIVE_BLACK),
+                    Color::White => format!("{}AA", PRIMITIVE_WHITE),
+                };
+                let x1_coords = regions.0 .0[i].clone();
+                let x2_coords = regions.1 .0[i].clone();
+                let x_thing = x2_coords.iter().cloned().rev().collect::<Vec<T>>();
+                // Append thing to x1_coords to create a new vector
+                let x_combined = x1_coords
+                    .into_iter()
+                    .chain(x_thing.into_iter())
+                    .collect::<Vec<T>>();
+
+                // Initial y vecs
+                let y1_coords = regions.0 .1[i].clone();
+                let y2_coords = regions.1 .1[i].clone();
+                let y_thing = y2_coords.iter().cloned().rev().collect::<Vec<T>>();
+                // Append thing to x1_coords to create a new vector
+                let y_combined = y1_coords
+                    .into_iter()
+                    .chain(y_thing.into_iter())
+                    .collect::<Vec<T>>();
+
+                let trace = Scatter::new(x_combined, y_combined)
+                    .fill(Fill::ToSelf)
+                    .fill_color(color)
+                    .line(Line::new().color(NamedColor::Transparent))
+                    .name(&match &regions.3 {
+                        Some(names) => format!(" {} {} {}", "$\\Large{", names[i].clone(), "}$"),
+                        None => "".to_string(),
+                    })
+                    .show_legend(match &regions.3 {
+                        Some(_) => true,
+                        None => false,
+                    });
+                plot.add_trace(trace);
+            }
+        }
+        None => {}
+    }
+    match curves.as_ref() {
+        Some(curves) => {
+            for i in 0..curves.0.len() {
+                let color = match &curves.2[0].3 {
+                    true => &curves.2[0],
+                    false => &curves.2[i],
+                };
+                let line = match color.0 {
+                    Color::Green => Line::new().color(PRIMITIVE_GREENS[color.1]),
+                    Color::Blue => Line::new().color(PRIMITIVE_BLUES[color.1]),
+                    Color::Purple => Line::new().color(PRIMITIVE_PURPLES[color.1]),
+                    Color::Grey => Line::new().color(PRIMITIVE_GREYS[color.1]),
+                    Color::Black => Line::new().color(PRIMITIVE_BLACK),
+                    Color::White => Line::new().color(PRIMITIVE_WHITE),
+                };
+                let line = match &color.2 {
+                    Emphasis::Light => line.width(2.0),
+                    Emphasis::Heavy => line.width(4.0),
+                    Emphasis::Dashed => line.width(2.0).dash(plotly::common::DashType::Dash),
+                };
+                let trace = Scatter::new(curves.0[i].clone(), curves.1[i].clone())
+                    .mode(Mode::Lines)
+                    .line(line)
+                    .name(&match &curves.3 {
+                        Some(names) => format!(" {} {} {}", "$\\Large{", names[i].clone(), "}$"),
+                        None => "".to_string(),
+                    })
+                    .show_legend(match &curves.3 {
+                        Some(_) => true,
+                        None => false,
+                    });
+                plot.add_trace(trace);
+            }
+        }
+        None => {}
     }
     let x_label = format!("{} {} {}", "$\\LARGE{", labels.x_label.clone(), "}$");
     let x_axis = Axis::new()
@@ -153,15 +220,16 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
                 .paper_background_color(PRIMITIVE_WHITE),
         },
     };
-    let layout = match legend_names {
-        Some(_) => match display_mode {
+    // let layout = match curves.unwrap().3.or(regions.unwrap().3) {
+    //     Some(_) =>
+    let layout = match display_mode {
             DisplayMode::Dark => layout
                 .show_legend(true)
                 .legend(
                     Legend::new()
                         .font(Font::new().color(PRIMITIVE_WHITE).size(24))
                         .x(0.7)
-                        .y(0.7),
+                        .y(0.9),
                 )
                 .font(Font::new().color(PRIMITIVE_WHITE)),
             DisplayMode::Light => layout
@@ -169,12 +237,12 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
                     Legend::new()
                         .font(Font::new().color(PRIMITIVE_BLACK).size(24))
                         .x(0.7)
-                        .y(0.7),
+                        .y(0.9),
                 )
                 .font(Font::new().color(PRIMITIVE_BLACK)),
-        },
-        None => layout.show_legend(false),
-    };
+        };
+    //     None => layout.show_legend(false),
+    // };
 
     plot.set_layout(layout);
     plot.write_html(plot_name.as_str().to_owned() + ".html");
