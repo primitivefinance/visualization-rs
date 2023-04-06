@@ -1,6 +1,6 @@
 use plotly::{
     common::{Font, Line, Mode, Pad, Title},
-    layout::{Axis, Legend, TicksPosition},
+    layout::{Axis, Legend, TicksPosition}, Configuration,
 };
 use plotly::{layout::Margin, Plot, Scatter};
 use serde::ser::Serialize;
@@ -229,7 +229,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
                     Legend::new()
                         .font(Font::new().color(PRIMITIVE_WHITE).size(24))
                         .x(0.7)
-                        .y(0.7),
+                        .y(0.9),
                 )
                 .font(Font::new().color(PRIMITIVE_WHITE)),
             DisplayMode::Light => layout
@@ -237,7 +237,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
                     Legend::new()
                         .font(Font::new().color(PRIMITIVE_BLACK).size(24))
                         .x(0.7)
-                        .y(0.7),
+                        .y(0.9),
                 )
                 .font(Font::new().color(PRIMITIVE_BLACK)),
         };

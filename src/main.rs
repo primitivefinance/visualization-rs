@@ -15,7 +15,7 @@ fn main() {
     let show = true;
 
     // ------------------ Plotting Plot 7 ------------------ //
-    let plot_name = "\\text{Convex Portfolio Value Function}".to_string();
+    let plot_name = "\\text{Leverage Zones}".to_string();
     let (mut x, mut y, mut x1, mut y1, mut x2, mut y2) = (vec![], vec![], vec![], vec![], vec![], vec![]);
     let x_bounds = vec![0.0, 5.0];
     let y_bounds = vec![0.0, 5.0];
@@ -32,7 +32,7 @@ fn main() {
     // y=x line and above (to y=5) //
     x1.push(t.iter().map(|t| 5.0 * t).collect::<Vec<f64>>());
     y1.push(t.iter().map(|t| 5.0 * t).collect::<Vec<f64>>());
-    // y=10 line
+    // y=5 line
     x2.push(t.iter().map(|t| 5.0 * t).collect::<Vec<f64>>());
     y2.push(t.iter().map(|_| 5.0).collect::<Vec<f64>>());
 
@@ -72,7 +72,6 @@ fn main() {
         ),
     ];
 
-    // TODO: Add legend positioning here
     let region_legend_names = vec![
         "\\text{Over Levered}".to_string(),
         "\\text{Under Levered}".to_string(),
@@ -83,8 +82,8 @@ fn main() {
     };
 
     plot::transparent_plot(
-        Some((x, y, curve_colors, Some(curve_legend_names))),
-        Some(((x1, y1), (x2, y2), region_colors, None)),
+        Some((x,y, curve_colors, Some(curve_legend_names))),
+        Some(((x1, y1), (x2, y2), region_colors, Some(region_legend_names))),
         (x_bounds, y_bounds),
         plot_name,
         (transparent, display_mode, show),
