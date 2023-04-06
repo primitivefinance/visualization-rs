@@ -13,7 +13,6 @@ fn main() {
     let transparent = true;
     let display_mode = DisplayMode::Dark;
     let show = true;
-
     // ------------------ Plotting Plot 0 ------------------ //
     // Plot of different types of approximations to the Gaussian PDF
     let plot_name = "".to_string();
@@ -61,13 +60,15 @@ fn main() {
         x_label: "x".to_string(),
         y_label: "f(x)".to_string(),
     };
+
     plot::transparent_plot(
-        (x, y),
-        (x_bounds, y_bounds),
+        (curves),
+        (bounds.0, bounds.1),
         plot_name,
-        Some(legend_names),
+        legend_names,
         colors,
         (transparent, display_mode, show),
         labels,
     );
+
 }

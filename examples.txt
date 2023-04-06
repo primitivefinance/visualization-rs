@@ -269,7 +269,6 @@ plot::transparent_plot(
     (transparent, display_mode, show),
     labels,
 );
-
 // ------------------ Plotting Plot 6 ------------------ //
 // Plot RMM portfolio value for multiple taus
 let plot_name = "\\text{RMM Portfolio Value}".to_string();
