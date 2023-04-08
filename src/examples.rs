@@ -5,9 +5,9 @@ use itertools_num::linspace;
 use statrs::consts;
 
 use crate::design::*;
-use crate::design::{Color, DisplayMode, ElementDesign, Emphasis, MAIN_COLOR_SLOT};
-use crate::functions::{standard_gaussian_pdf, factorial, polynomial_approx};
-use crate::plot::{transparent_plot, Axes, Curve, Display, Region};
+use crate::design::*;
+use crate::functions::*;
+use crate::plot::*;
 
 /// Plot of different types of approximations to the Gaussian PDF
 pub fn compare_approximation_types(display: Display) {
@@ -65,8 +65,8 @@ pub fn compare_approximation_types(display: Display) {
 
     // Build the plot's axes
     let axes = Axes {
-        x_label: "x".to_string(),
-        y_label: "f(x)".to_string(),
+        x_label: String::from("x"),
+        y_label: String::from("f(x)"),
         bounds: (vec![t_start, t_end], vec![-0.5, 1.5]),
     };
 
@@ -95,9 +95,10 @@ pub fn polynomial_approximations(display: Display) {
 
     // Build the approximation coefficients
     let top_degree = 8;
-    let coefficient_range: Vec<i32> = (0..top_degree + 1).collect();
+    let coefficient_range = 0..top_degree + 1;
     let coefficients = coefficient_range
-        .iter()
+        .clone()
+        .into_iter()
         .map(|n| match n % 2 {
             0 => (((-1.0) as f64).powi(n.div(2))) / (factorial(n.div(2) as u32) as f64),
             _ => 0.0,
@@ -106,7 +107,7 @@ pub fn polynomial_approximations(display: Display) {
 
     // Build the polynomial approximations
     let mut curves = vec![];
-    for degree in (0..top_degree + 1).step_by(2) {
+    for degree in coefficient_range.step_by(2) {
         let curve = Curve {
             x_coordinates: t.clone(),
             y_coordinates: polynomial_approx(
@@ -118,7 +119,7 @@ pub fn polynomial_approximations(display: Display) {
                 color_slot: degree.clone() as usize,
                 emphasis: Emphasis::Light,
             },
-            name: Some(format!("{} {}", "\\text{Degree }", degree.clone())),
+            name: Some(format!("{} {}", "\\text{Degree }", degree)),
         };
         curves.push(curve);
     }
@@ -144,69 +145,56 @@ pub fn polynomial_approximations(display: Display) {
 
     // Build the plot's axes
     let axes = Axes {
-        x_label: "x".to_string(),
-        y_label: "f(x)".to_string(),
+        x_label: String::from("x"),
+        y_label: String::from("f(x)"),
         bounds: (vec![t_start, t_end], vec![-0.5, 1.5]),
     };
 
-    transparent_plot(
-        Some(curves),
-        None,
-        axes,
-        title,
-        display,
-    );
+    transparent_plot(Some(curves), None, axes, title, display);
 }
 
-// /// Plot RMM trading curve for multiple taus from a list of prices
-// pub fn rmm_trading_curve_multiple_taus(transparent: bool, display_mode: DisplayMode, show: bool) {
-//     let plot_name = "\\text{RMM Trading Curve}".to_string();
-//     let strike = 3_f64;
-//     let sigma = 0.5_f64;
-//     let taus: Vec<f64> = linspace(2.0, 0.0, 5).collect::<Vec<f64>>();
-//     let p_0 = 0.0_f64;
-//     let p_1 = 100.0_f64;
-//     let n = 1000;
-//     let prices = linspace(p_0, p_1, n).collect::<Vec<f64>>();
-//     let mut x: Vec<Vec<f64>> = Vec::new();
-//     let mut y: Vec<Vec<f64>> = Vec::new();
-//     for tau in taus.iter() {
-//         let (x_tau, y_tau) =
-//             functions::rmm_trading_curve(prices.clone(), strike, sigma, *tau, None);
-//         x.push(x_tau);
-//         y.push(y_tau);
-//     }
-//     let x_bounds = vec![0_f64, 1_f64];
-//     let y_bounds = vec![0_f64, strike];
-//     let single_color = false;
-//     let colors = vec![
-//         (Color::Green, 0, Emphasis::Light, single_color),
-//         (Color::Green, 1, Emphasis::Light, single_color),
-//         (Color::Green, 2, Emphasis::Light, single_color),
-//         (Color::Green, 3, Emphasis::Light, single_color),
-//         (Color::Green, MAIN_COLOR_SLOT, Emphasis::Heavy, single_color),
-//     ];
-//     let legend_names = vec![
-//         "\\tau=2.0".to_string(),
-//         "\\tau=1.5".to_string(),
-//         "\\tau=1.0".to_string(),
-//         "\\tau=0.5".to_string(),
-//         "\\tau=0.0".to_string(),
-//     ];
-//     let labels = Labels {
-//         x_label: "R_x".to_string(),
-//         y_label: "R_y".to_string(),
-//     };
-//     transparent_plot(
-//         (x, y),
-//         (x_bounds, y_bounds),
-//         plot_name,
-//         Some(legend_names),
-//         colors,
-//         (transparent, display_mode, show),
-//         labels,
-//     );
-// }
+/// Plot RMM trading curve for multiple taus from a list of prices
+pub fn rmm_trading_curve_multiple_taus(display: Display) {
+    let title = String::from("\\text{RMM Trading Curve}");
+
+    // Define the relavant RMM-CC parameters with multiple taus
+    let strike = 3_f64;
+    let sigma = 0.5_f64;
+    let taus: Vec<f64> = linspace(2.0, 0.0, 5).collect::<Vec<f64>>();
+
+    // Create a list of prices that we will compute the reserves from
+    let price_start = 0.0_f64;
+    let price_end = 100.0_f64;
+    let number_of_prices = 1000;
+    let prices = linspace(price_start, price_end, number_of_prices).collect::<Vec<f64>>();
+
+    // Build the curves
+    let mut curves = vec![];
+    for (index, tau) in taus.iter().enumerate() {
+        let (reserves_x_tau, reserves_y_tau) =
+            rmm_trading_curve(prices.clone(), strike, sigma, *tau, None);
+        let curve = Curve {
+            x_coordinates: reserves_x_tau,
+            y_coordinates: reserves_y_tau,
+            design: ElementDesign {
+                color: Color::Green,
+                color_slot: index,
+                emphasis: Emphasis::Light,
+            },
+            name: Some(format!("{} {}", "\\tau=", tau)),
+        };
+        curves.push(curve);
+    }
+
+    // Build the plot's axes
+    let axes = Axes {
+        x_label: String::from("R_x"),
+        y_label: String::from("R_y"),
+        bounds: (vec![0.0, 1.0], vec![0.0, 3.0]),
+    };
+
+    transparent_plot(Some(curves), None, axes, title, display);
+}
 
 // /// Plot RMM trading curve for multiple rescalings
 // pub fn rmm_trading_curve_rescaling(transparent: bool, display_mode: DisplayMode, show: bool) {

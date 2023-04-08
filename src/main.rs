@@ -3,7 +3,9 @@ mod examples;
 mod functions;
 mod plot;
 use design::DisplayMode;
-use examples::{compare_approximation_types, polynomial_approximations};
+use examples::{
+    compare_approximation_types, polynomial_approximations, rmm_trading_curve_multiple_taus,
+};
 use plot::*;
 
 fn main() {
@@ -13,5 +15,5 @@ fn main() {
         mode: DisplayMode::Light,
         show: true,
     };
-    polynomial_approximations(display);
+    rmm_trading_curve_multiple_taus(display);
 }
