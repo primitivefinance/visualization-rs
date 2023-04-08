@@ -3,9 +3,7 @@ mod examples;
 mod functions;
 mod plot;
 use design::DisplayMode;
-use examples::{
-    compare_approximation_types, polynomial_approximations, rmm_trading_curve_multiple_taus,
-};
+use examples::*;
 use plot::*;
 
 fn main() {
@@ -15,5 +13,5 @@ fn main() {
         mode: DisplayMode::Light,
         show: true,
     };
-    rmm_trading_curve_multiple_taus(display);
+    leverage_zones_with_pvf(display);
 }

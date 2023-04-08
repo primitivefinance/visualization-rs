@@ -1,18 +1,10 @@
 #![warn(missing_docs)]
 use plotly::{
-    common::{Font, Line, Mode, Pad, Title},
-    layout::{Axis, Legend, TicksPosition},
-    Configuration,
+    color::NamedColor,
+    common::{Fill, Font, Line, Mode, Title},
+    layout::{Axis, Legend, Margin},
+    Plot, Scatter,
 };
-use plotly::{layout::Margin, Plot, Scatter};
-use serde::ser::Serialize;
-
-// testing
-use itertools_num::linspace;
-use plotly::color::{NamedColor, Rgb, Rgba};
-use plotly::common::{ColorScale, ColorScalePalette, DashType, Fill, LineShape, Marker};
-use plotly::layout::{BarMode, Layout, TicksDirection};
-use rand_distr::{Distribution, Normal, Uniform};
 
 use crate::design::*;
 
