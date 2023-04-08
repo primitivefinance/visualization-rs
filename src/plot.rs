@@ -20,7 +20,7 @@ pub struct Curve {
     pub x_coordinates: Vec<f64>,
     pub y_coordinates: Vec<f64>,
     pub design: ElementDesign, // TODO: Edit this
-    pub name: Option<&'static str>,
+    pub name: Option<String>,
 }
 
 pub struct Region {
@@ -31,7 +31,7 @@ pub struct Region {
     /// The two sets will provide bounds for a region.
     pub y_coordinates: (Vec<f64>, Vec<f64>),
     pub design: ElementDesign,
-    pub name: Option<&'static str>,
+    pub name: Option<String>,
 }
 
 pub struct Axes {
@@ -91,7 +91,7 @@ pub fn transparent_plot(
                     .fill(Fill::ToSelf)
                     .fill_color(color)
                     .line(Line::new().color(NamedColor::Transparent))
-                    .name(&match region.name {
+                    .name(&match region.name.clone() {
                         Some(name) => format!(" {} {} {}", "$\\Large{", name, "}$"),
                         None => "".to_string(),
                     })
@@ -124,7 +124,7 @@ pub fn transparent_plot(
                 let trace = Scatter::new(curve.x_coordinates.clone(), curve.y_coordinates.clone())
                     .mode(Mode::Lines)
                     .line(line)
-                    .name(&match curve.name {
+                    .name(&match curve.name.clone() {
                         Some(name) => format!(" {} {} {}", "$\\Large{", name, "}$"),
                         None => "".to_string(),
                     })

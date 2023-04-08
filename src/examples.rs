@@ -6,11 +6,12 @@ use statrs::consts;
 
 use crate::design::*;
 use crate::design::{Color, DisplayMode, ElementDesign, Emphasis, MAIN_COLOR_SLOT};
-use crate::functions::standard_gaussian_pdf;
+use crate::functions::{standard_gaussian_pdf, factorial, polynomial_approx};
 use crate::plot::{transparent_plot, Axes, Curve, Display, Region};
+
 /// Plot of different types of approximations to the Gaussian PDF
 pub fn compare_approximation_types(display: Display) {
-    let title = "\\text{Comparing Types of Approximations}".to_string();
+    let title = String::from("\\text{Comparing Types of Approximations}");
 
     // Use a parameterization
     let t_start = -5.0;
@@ -23,13 +24,12 @@ pub fn compare_approximation_types(display: Display) {
         color: Color::Purple,
         color_slot: MAIN_COLOR_SLOT,
         emphasis: Emphasis::Light,
-        increment_colors: false,
     };
     let polynomial_approximation = Curve {
         x_coordinates: t.clone(),
         y_coordinates: t.iter().map(|x| 1.0 - x * x).collect(),
         design: polynomial_approximation_design,
-        name: Some("1-x^2"),
+        name: Some(String::from("1-x^2")),
     };
 
     // Build the rational approximation
@@ -37,13 +37,12 @@ pub fn compare_approximation_types(display: Display) {
         color: Color::Blue,
         color_slot: MAIN_COLOR_SLOT,
         emphasis: Emphasis::Light,
-        increment_colors: false,
     };
     let rational_approximation = Curve {
         x_coordinates: t.clone(),
         y_coordinates: t.iter().map(|x| 1.0 / (1.0 + x * x)).collect(),
         design: rational_approximation_design,
-        name: Some("(1-x^2)^{-1}"),
+        name: Some(String::from("(1-x^2)^{-1}")),
     };
 
     // Build the Gaussian PDF
@@ -51,15 +50,17 @@ pub fn compare_approximation_types(display: Display) {
         color: Color::Green,
         color_slot: MAIN_COLOR_SLOT,
         emphasis: Emphasis::Heavy,
-        increment_colors: false,
     };
     let gaussian_pdf = Curve {
         x_coordinates: t.clone(),
         y_coordinates: standard_gaussian_pdf(
             t.clone().iter().map(|x| 2.0_f64.sqrt() * x).collect(),
-            ).iter().map(|y| consts::SQRT_2PI * y).collect(),
+        )
+        .iter()
+        .map(|y| consts::SQRT_2PI * y)
+        .collect(),
         design: gaussian_pdf_design,
-        name: Some("\\exp\\left(-x^2\\right)"),
+        name: Some(String::from("\\exp\\left(-x^2\\right)")),
     };
 
     // Build the plot's axes
@@ -82,75 +83,80 @@ pub fn compare_approximation_types(display: Display) {
     );
 }
 
-// /// Plots of polynomial approximations to the Gaussian PDF
-// pub fn polynomial_approximations(transparent: bool, display_mode: DisplayMode, show: bool) {
-//     let plot_name = "\\text{Polynomial Approximations}".to_string();
-//     let mut x = vec![];
-//     let mut y = vec![];
-//     let x_bounds = vec![-5.0, 5.0];
-//     let number_of_points = 1000;
-//     let top_degree = 8;
-//     let x_input = linspace(x_bounds[0], x_bounds[1], number_of_points).collect::<Vec<f64>>();
-//     let coeff_range: Vec<i32> = (0..top_degree + 1).collect();
-//     let coeffs = coeff_range
-//         .iter()
-//         .map(|n| match n % 2 {
-//             0 => (((-1.0) as f64).powi(n.div(2))) / (functions::factorial(n.div(2) as u32) as f64),
-//             _ => 0.0,
-//         })
-//         .collect::<Vec<f64>>();
-//     for i in (0..top_degree + 1).step_by(2) {
-//         x.push(x_input.clone());
-//         y.push(functions::polynomial_approx(
-//             x_input.clone(),
-//             coeffs[0..1 + i as usize].to_vec(),
-//         ));
-//     }
-//     x.push(x_input.clone());
-//     let y_temp = functions::standard_gaussian_pdf(
-//         x_input
-//             .iter()
-//             .map(|x| x * 2.0_f64.sqrt())
-//             .collect::<Vec<f64>>(),
-//     );
-//     y.push(
-//         y_temp
-//             .iter()
-//             .map(|y| consts::SQRT_2PI * y)
-//             .collect::<Vec<f64>>(),
-//     );
-//     let y_bounds = vec![-1.0, 1.5];
-//     let single_color = false;
-//     let colors = vec![
-//         (Color::Purple, 0, Emphasis::Light, single_color),
-//         (Color::Purple, 1, Emphasis::Light, single_color),
-//         (Color::Purple, 2, Emphasis::Light, single_color),
-//         (Color::Purple, 3, Emphasis::Light, single_color),
-//         (Color::Purple, 4, Emphasis::Light, single_color),
-//         (Color::Green, MAIN_COLOR_SLOT, Emphasis::Heavy, single_color),
-//     ];
-//     let legend_names = vec![
-//         format!("{} {} {}", "\\text{", "Degree 0", "}"),
-//         format!("{} {} {}", "\\text{", "Degree 2", "}"),
-//         format!("{} {} {}", "\\text{", "Degree 4", "}"),
-//         format!("{} {} {}", "\\text{", "Degree 6", "}"),
-//         format!("{} {} {}", "\\text{", "Degree 8", "}"),
-//         "\\exp\\left(-x^2\\right)".to_string(),
-//     ];
-//     let labels = Labels {
-//         x_label: "x".to_string(),
-//         y_label: "f(x)".to_string(),
-//     };
-//     transparent_plot(
-//         (x, y),
-//         (x_bounds, y_bounds),
-//         plot_name,
-//         Some(legend_names),
-//         colors,
-//         (transparent, display_mode, show),
-//         labels,
-//     );
-// }
+/// Plots of polynomial approximations to the Gaussian PDF
+pub fn polynomial_approximations(display: Display) {
+    let title = String::from("\\text{Polynomial Approximations}");
+
+    // Use a parameterization
+    let t_start = -5.0;
+    let t_end = 5.0;
+    let number_of_points = 1000;
+    let t = linspace(t_start, t_end, number_of_points).collect::<Vec<f64>>();
+
+    // Build the approximation coefficients
+    let top_degree = 8;
+    let coefficient_range: Vec<i32> = (0..top_degree + 1).collect();
+    let coefficients = coefficient_range
+        .iter()
+        .map(|n| match n % 2 {
+            0 => (((-1.0) as f64).powi(n.div(2))) / (factorial(n.div(2) as u32) as f64),
+            _ => 0.0,
+        })
+        .collect::<Vec<f64>>();
+
+    // Build the polynomial approximations
+    let mut curves = vec![];
+    for degree in (0..top_degree + 1).step_by(2) {
+        let curve = Curve {
+            x_coordinates: t.clone(),
+            y_coordinates: polynomial_approx(
+                t.clone(),
+                coefficients[0..1 + degree as usize].to_vec(),
+            ),
+            design: ElementDesign {
+                color: Color::Purple,
+                color_slot: degree.clone() as usize,
+                emphasis: Emphasis::Light,
+            },
+            name: Some(format!("{} {}", "\\text{Degree }", degree.clone())),
+        };
+        curves.push(curve);
+    }
+
+    // Build the Gaussian PDF
+    let gaussian_pdf_design = ElementDesign {
+        color: Color::Green,
+        color_slot: MAIN_COLOR_SLOT,
+        emphasis: Emphasis::Heavy,
+    };
+    let gaussian_pdf = Curve {
+        x_coordinates: t.clone(),
+        y_coordinates: standard_gaussian_pdf(
+            t.clone().iter().map(|x| 2.0_f64.sqrt() * x).collect(),
+        )
+        .iter()
+        .map(|y| consts::SQRT_2PI * y)
+        .collect(),
+        design: gaussian_pdf_design,
+        name: Some(String::from("\\exp\\left(-x^2\\right)")),
+    };
+    curves.push(gaussian_pdf);
+
+    // Build the plot's axes
+    let axes = Axes {
+        x_label: "x".to_string(),
+        y_label: "f(x)".to_string(),
+        bounds: (vec![t_start, t_end], vec![-0.5, 1.5]),
+    };
+
+    transparent_plot(
+        Some(curves),
+        None,
+        axes,
+        title,
+        display,
+    );
+}
 
 // /// Plot RMM trading curve for multiple taus from a list of prices
 // pub fn rmm_trading_curve_multiple_taus(transparent: bool, display_mode: DisplayMode, show: bool) {

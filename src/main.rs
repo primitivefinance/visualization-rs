@@ -3,7 +3,7 @@ mod examples;
 mod functions;
 mod plot;
 use design::DisplayMode;
-use examples::compare_approximation_types;
+use examples::{compare_approximation_types, polynomial_approximations};
 use plot::*;
 
 fn main() {
@@ -13,5 +13,5 @@ fn main() {
         mode: DisplayMode::Light,
         show: true,
     };
-    compare_approximation_types(display);
+    polynomial_approximations(display);
 }

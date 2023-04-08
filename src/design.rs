@@ -24,7 +24,6 @@ pub struct ElementDesign {
     pub color: Color,
     pub color_slot: usize,
     pub emphasis: Emphasis,
-    pub increment_colors: bool,
 }
 
 pub const MAIN_COLOR_SLOT: usize = 5;
