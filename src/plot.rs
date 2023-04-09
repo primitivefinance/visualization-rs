@@ -47,89 +47,79 @@ pub fn transparent_plot(
 ) {
     let mut plot = Plot::new();
     // TODO: Below should be put into a helper function
-    match regions {
-        Some(regions) => {
-            for region in regions.iter() {
-                let color_slot = region.design.color_slot;
-                let color = match region.design.color {
-                    Color::Green => format!("{}AA", PRIMITIVE_GREENS[color_slot]),
-                    Color::Blue => format!("{}AA", PRIMITIVE_BLUES[color_slot]),
-                    Color::Purple => format!("{}AA", PRIMITIVE_PURPLES[color_slot]),
-                    Color::Grey => format!("{}AA", PRIMITIVE_GREYS[color_slot]),
-                    Color::Black => format!("{}AA", PRIMITIVE_BLACK),
-                    Color::White => format!("{}AA", PRIMITIVE_WHITE),
-                };
-                // Combine the two x coordinates for the bounding curves by reversing the second and appending into a longer vector.
-                let x1_coords = region.x_coordinates.0.clone();
-                let x2_coords = region.x_coordinates.1.clone();
-                let x2_reversed = x2_coords.iter().cloned().rev().collect::<Vec<f64>>();
-                // Append thing to x1_coords to create a new vector
-                let x_combined = x1_coords
-                    .into_iter()
-                    .chain(x2_reversed.into_iter())
-                    .collect::<Vec<f64>>();
 
-                // Combine the two y coordinates for the bounding curves by reversing the second and appending into a longer vector.
-                let y1_coords = region.y_coordinates.0.clone();
-                let y2_coords = region.y_coordinates.1.clone();
-                let y2_reversed = y2_coords.iter().cloned().rev().collect::<Vec<f64>>();
-                // Append thing to x1_coords to create a new vector
-                let y_combined = y1_coords
-                    .into_iter()
-                    .chain(y2_reversed.into_iter())
-                    .collect::<Vec<f64>>();
+    if let Some(regions) = regions {
+        for region in regions.iter() {
+            let color_slot = region.design.color_slot;
+            let color = match region.design.color {
+                Color::Green => format!("{}AA", PRIMITIVE_GREENS[color_slot]),
+                Color::Blue => format!("{}AA", PRIMITIVE_BLUES[color_slot]),
+                Color::Purple => format!("{}AA", PRIMITIVE_PURPLES[color_slot]),
+                Color::Grey => format!("{}AA", PRIMITIVE_GREYS[color_slot]),
+                Color::Black => format!("{}AA", PRIMITIVE_BLACK),
+                Color::White => format!("{}AA", PRIMITIVE_WHITE),
+            };
+            // Combine the two x coordinates for the bounding curves by reversing the second and appending into a longer vector.
+            let x1_coords = region.x_coordinates.0.clone();
+            let x2_coords = region.x_coordinates.1.clone();
+            let x2_reversed = x2_coords.iter().cloned().rev().collect::<Vec<f64>>();
+            // Append thing to x1_coords to create a new vector
+            let x_combined = x1_coords
+                .into_iter()
+                .chain(x2_reversed.into_iter())
+                .collect::<Vec<f64>>();
 
-                let trace = Scatter::new(x_combined, y_combined)
-                    .fill(Fill::ToSelf)
-                    .fill_color(color)
-                    .line(Line::new().color(NamedColor::Transparent))
-                    .name(&match region.name.clone() {
-                        Some(name) => format!(" {} {} {}", "$\\Large{", name, "}$"),
-                        None => "".to_string(),
-                    })
-                    .show_legend(match region.name {
-                        Some(_) => true,
-                        None => false,
-                    });
-                plot.add_trace(trace);
-            }
+            // Combine the two y coordinates for the bounding curves by reversing the second and appending into a longer vector.
+            let y1_coords = region.y_coordinates.0.clone();
+            let y2_coords = region.y_coordinates.1.clone();
+            let y2_reversed = y2_coords.iter().cloned().rev().collect::<Vec<f64>>();
+            // Append thing to x1_coords to create a new vector
+            let y_combined = y1_coords
+                .into_iter()
+                .chain(y2_reversed.into_iter())
+                .collect::<Vec<f64>>();
+
+            let trace = Scatter::new(x_combined, y_combined)
+                .fill(Fill::ToSelf)
+                .fill_color(color)
+                .line(Line::new().color(NamedColor::Transparent))
+                .name(&match region.name.clone() {
+                    Some(name) => format!(" {} {} {}", "$\\Large{", name, "}$"),
+                    None => "".to_string(),
+                })
+                .show_legend(region.name.is_some());
+            plot.add_trace(trace);
         }
-        None => {}
     }
-    match curves {
-        Some(curves) => {
-            for curve in curves.iter() {
-                let color_slot = curve.design.color_slot;
-                let line = match curve.design.color {
-                    Color::Green => Line::new().color(PRIMITIVE_GREENS[color_slot]),
-                    Color::Blue => Line::new().color(PRIMITIVE_BLUES[color_slot]),
-                    Color::Purple => Line::new().color(PRIMITIVE_PURPLES[color_slot]),
-                    Color::Grey => Line::new().color(PRIMITIVE_GREYS[color_slot]),
-                    Color::Black => Line::new().color(PRIMITIVE_BLACK),
-                    Color::White => Line::new().color(PRIMITIVE_WHITE),
-                };
-                let line = match curve.design.emphasis {
-                    Emphasis::Light => line.width(2.0),
-                    Emphasis::Heavy => line.width(4.0),
-                    Emphasis::Dashed => line.width(2.0).dash(plotly::common::DashType::Dash),
-                };
-                let trace = Scatter::new(curve.x_coordinates.clone(), curve.y_coordinates.clone())
-                    .mode(Mode::Lines)
-                    .line(line)
-                    .name(&match curve.name.clone() {
-                        Some(name) => format!(" {} {} {}", "$\\Large{", name, "}$"),
-                        None => "".to_string(),
-                    })
-                    .show_legend(match curve.name {
-                        Some(_) => true,
-                        None => false,
-                    });
-                plot.add_trace(trace);
-            }
+    if let Some(curves) = curves {
+        for curve in curves.iter() {
+            let color_slot = curve.design.color_slot;
+            let line = match curve.design.color {
+                Color::Green => Line::new().color(PRIMITIVE_GREENS[color_slot]),
+                Color::Blue => Line::new().color(PRIMITIVE_BLUES[color_slot]),
+                Color::Purple => Line::new().color(PRIMITIVE_PURPLES[color_slot]),
+                Color::Grey => Line::new().color(PRIMITIVE_GREYS[color_slot]),
+                Color::Black => Line::new().color(PRIMITIVE_BLACK),
+                Color::White => Line::new().color(PRIMITIVE_WHITE),
+            };
+            let line = match curve.design.emphasis {
+                Emphasis::Light => line.width(2.0),
+                Emphasis::Heavy => line.width(4.0),
+                Emphasis::Dashed => line.width(2.0).dash(plotly::common::DashType::Dash),
+            };
+            let trace = Scatter::new(curve.x_coordinates.clone(), curve.y_coordinates.clone())
+                .mode(Mode::Lines)
+                .line(line)
+                .name(&match curve.name.clone() {
+                    Some(name) => format!(" {} {} {}", "$\\Large{", name, "}$"),
+                    None => "".to_string(),
+                })
+                .show_legend(curve.name.is_some());
+            plot.add_trace(trace);
         }
-        None => {}
     }
-    let x_label = format!("{} {} {}", "$\\LARGE{", axes.x_label.clone(), "}$");
+
+    let x_label = format!("{} {} {}", "$\\LARGE{", axes.x_label, "}$");
     let x_axis = Axis::new()
         .title(Title::new(&x_label).font(Font::new().size(24)))
         .show_grid(true)
@@ -143,7 +133,7 @@ pub fn transparent_plot(
         .auto_margin(false)
         .range(axes.bounds.0)
         .ticks(plotly::layout::TicksDirection::Outside);
-    let y_label = format!("{} {} {}", "$\\LARGE{", axes.y_label.clone(), "}$");
+    let y_label = format!("{} {} {}", "$\\LARGE{", axes.y_label, "}$");
     let y_axis = Axis::new()
         .title(Title::new(&y_label).font(Font::new().size(48)))
         .show_grid(true)

@@ -2,6 +2,7 @@ use rand_distr::{Distribution, Normal};
 use statrs::consts;
 use statrs::distribution::{ContinuousCDF, Normal as NormalDist};
 
+#[allow(unused)]
 pub fn _sample_normal(mean: f64, std_dev: f64, n: usize) -> Vec<f64> {
     let normal = Normal::new(mean, std_dev).unwrap();
     let mut rng = rand::thread_rng();
@@ -12,6 +13,7 @@ pub fn _sample_normal(mean: f64, std_dev: f64, n: usize) -> Vec<f64> {
     v
 }
 // TODO: May be better to have functions not vectorized and use iterators outside.
+#[allow(unused)]
 pub fn d_one(x: Vec<f64>, strike: f64, sigma: f64, tau: f64) -> Vec<f64> {
     let mut v = Vec::with_capacity(x.len());
     for x_val in &x {
@@ -20,6 +22,7 @@ pub fn d_one(x: Vec<f64>, strike: f64, sigma: f64, tau: f64) -> Vec<f64> {
     v
 }
 
+#[allow(unused)]
 pub fn d_two(x: Vec<f64>, strike: f64, sigma: f64, tau: f64) -> Vec<f64> {
     let mut v = Vec::with_capacity(x.len());
     for x_val in &x {
@@ -28,7 +31,7 @@ pub fn d_two(x: Vec<f64>, strike: f64, sigma: f64, tau: f64) -> Vec<f64> {
     v
 }
 
-// TODO: Rewrite as R_x and R_y functions so that we can use closures the same way in main.rs
+#[allow(unused)]
 pub fn rmm_trading_curve(
     prices: Vec<f64>,
     strike: f64,
@@ -47,7 +50,7 @@ pub fn rmm_trading_curve(
     }
     (x, y)
 }
-
+#[allow(unused)]
 pub fn standard_gaussian_cdf(x: Vec<f64>) -> Vec<f64> {
     let normal = NormalDist::new(0.0, 1.0).unwrap();
     let mut y = Vec::with_capacity(x.len());
@@ -56,7 +59,7 @@ pub fn standard_gaussian_cdf(x: Vec<f64>) -> Vec<f64> {
     }
     y
 }
-
+#[allow(unused)]
 pub fn standard_gaussian_pdf(x: Vec<f64>) -> Vec<f64> {
     let mut y = Vec::with_capacity(x.len());
     for x_val in &x {
@@ -64,7 +67,7 @@ pub fn standard_gaussian_pdf(x: Vec<f64>) -> Vec<f64> {
     }
     y
 }
-
+#[allow(unused)]
 pub fn polynomial_approx(x: Vec<f64>, coeffs: Vec<f64>) -> Vec<f64> {
     let mut y = Vec::with_capacity(x.len());
     for x_val in &x {
@@ -76,7 +79,7 @@ pub fn polynomial_approx(x: Vec<f64>, coeffs: Vec<f64>) -> Vec<f64> {
     }
     y
 }
-
+#[allow(unused)]
 pub fn factorial(n: u32) -> u32 {
     let mut f = 1;
     for i in 1..=n {
@@ -84,7 +87,7 @@ pub fn factorial(n: u32) -> u32 {
     }
     f
 }
-
+#[allow(unused)]
 pub fn parametric_line(t: Vec<f64>, a: f64, b: f64, x_0: f64, y_0: f64) -> (Vec<f64>, Vec<f64>) {
     let mut x = Vec::with_capacity(t.len());
     let mut y = Vec::with_capacity(t.len());
