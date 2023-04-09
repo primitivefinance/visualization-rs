@@ -11,7 +11,7 @@ use crate::design::*;
 pub struct Curve {
     pub x_coordinates: Vec<f64>,
     pub y_coordinates: Vec<f64>,
-    pub design: ElementDesign, 
+    pub design: ElementDesign,
     pub name: Option<String>,
 }
 
