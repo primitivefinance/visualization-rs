@@ -1,122 +1,93 @@
+#![warn(missing_docs)]
 use plotly::{
-    common::{Font, Line, Mode, Pad, Title},
-    layout::{Axis, Legend, TicksPosition}, Configuration,
+    color::NamedColor,
+    common::{Fill, Font, Line, Mode, Title},
+    layout::{Axis, Legend, Margin},
+    Plot, Scatter,
 };
-use plotly::{layout::Margin, Plot, Scatter};
-use serde::ser::Serialize;
 
-// testing
-use itertools_num::linspace;
-use plotly::color::{NamedColor, Rgb, Rgba};
-use plotly::common::{ColorScale, ColorScalePalette, DashType, Fill, LineShape, Marker};
-use plotly::layout::{BarMode, Layout, TicksDirection};
-use rand_distr::{Distribution, Normal, Uniform};
+use crate::design::*;
 
-#[derive(Copy, Clone)]
-pub enum DisplayMode {
-    Light,
-    Dark,
-}
-// TODO: Use DisplayMode for light mode/dark mode. For light mode, we will also want to consider decreasing from the top when using a list of colors since that will be darker
-#[derive(Debug)]
-pub enum Color {
-    Green,
-    Blue,
-    Purple,
-    Grey,
-    Black,
-    White,
+pub struct Curve {
+    pub x_coordinates: Vec<f64>,
+    pub y_coordinates: Vec<f64>,
+    pub design: ElementDesign,
+    pub name: Option<String>,
 }
 
-pub enum Emphasis {
-    Light,
-    Heavy,
-    Dashed,
+pub struct Region {
+    /// A tuple of x_coordinates.
+    /// The two sets will provide bounds for a region.
+    pub x_coordinates: (Vec<f64>, Vec<f64>),
+    /// A tuple of y_coordinates.
+    /// The two sets will provide bounds for a region.
+    pub y_coordinates: (Vec<f64>, Vec<f64>),
+    pub design: ElementDesign,
+    pub name: Option<String>,
 }
 
-pub struct Labels {
+pub struct Axes {
     pub x_label: String,
     pub y_label: String,
+    pub bounds: (Vec<f64>, Vec<f64>),
 }
 
-pub const MAIN_COLOR_SLOT: usize = 5;
+pub struct Display {
+    pub transparent: bool,
+    pub mode: DisplayMode,
+    pub show: bool,
+}
 
-pub const PRIMITIVE_GREENS: [&str; 10] = [
-    "E1FDEA", "BCF2CD", "95E8AF", "6CDD90", "45D471", "2BBA58", "1F9143", "136730", "063F1A",
-    "001703",
-];
-
-pub const PRIMITIVE_BLUES: [&str; 10] = [
-    "C2E8FF", "AED4FF", "9AC0FF", "86ACFF", "7298EB", "5E84D7", "4A70C3", "365CAF", "22489B",
-    "002073",
-];
-
-pub const PRIMITIVE_PURPLES: [&str; 10] = [
-    "FEF4FF", "EAE0FF", "D6CCFF", "C2B8FF", "AEA4FF", "9A90F2", "867CDE", "7268CA", "5E54B6",
-    "362C8E",
-];
-
-pub const PRIMITIVE_GREYS: [&str; 10] = [
-    "F1F1FC", "D6D8DF", "BBBEC3", "A2A4AA", "878A91", "6D7077", "55575E", "3D3E44", "23252B",
-    "0B0B15",
-];
-
-pub const PRIMITIVE_BLACK: &str = "151718";
-pub const PRIMITIVE_WHITE: &str = "FFFFFF";
-
-pub fn transparent_plot<T: Serialize + Clone + 'static>(
-    curves: Option<(Vec<Vec<T>>, Vec<Vec<T>>, Vec<(Color, usize, Emphasis, bool)>, Option<Vec<String>>)>,
-    regions: Option<((Vec<Vec<T>>, Vec<Vec<T>>), (Vec<Vec<T>>, Vec<Vec<T>>), Vec<(Color, usize, Emphasis, bool)>, Option<Vec<String>>)>,
-    bounds: (Vec<f64>, Vec<f64>),
-    plot_name: String,
-    (transparent, display_mode, show): (bool, DisplayMode, bool),
-    labels: Labels,
+pub fn transparent_plot(
+    curves: Option<Vec<Curve>>,
+    regions: Option<Vec<Region>>,
+    axes: Axes,
+    title: String,
+    display: Display,
 ) {
     let mut plot = Plot::new();
     // TODO: Below should be put into a helper function
-    match regions.as_ref() {
+    match regions {
         Some(regions) => {
-            for i in 0..regions.0 .0.len() {
-                let color = match &regions.2[0].3 {
-                    true => &regions.2[0],
-                    false => &regions.2[i],
-                };
-                let color = match color.0 {
-                    Color::Green => format!("{}AA", PRIMITIVE_GREENS[color.1]),
-                    Color::Blue => format!("{}AA", PRIMITIVE_BLUES[color.1]),
-                    Color::Purple => format!("{}AA", PRIMITIVE_PURPLES[color.1]),
-                    Color::Grey => format!("{}AA", PRIMITIVE_GREYS[color.1]),
+            for region in regions.iter() {
+                let color_slot = region.design.color_slot;
+                let color = match region.design.color {
+                    Color::Green => format!("{}AA", PRIMITIVE_GREENS[color_slot]),
+                    Color::Blue => format!("{}AA", PRIMITIVE_BLUES[color_slot]),
+                    Color::Purple => format!("{}AA", PRIMITIVE_PURPLES[color_slot]),
+                    Color::Grey => format!("{}AA", PRIMITIVE_GREYS[color_slot]),
                     Color::Black => format!("{}AA", PRIMITIVE_BLACK),
                     Color::White => format!("{}AA", PRIMITIVE_WHITE),
                 };
-                let x1_coords = regions.0 .0[i].clone();
-                let x2_coords = regions.1 .0[i].clone();
-                let x_thing = x2_coords.iter().cloned().rev().collect::<Vec<T>>();
+                // Combine the two x coordinates for the bounding curves by reversing the second and appending into a longer vector.
+                let x1_coords = region.x_coordinates.0.clone();
+                let x2_coords = region.x_coordinates.1.clone();
+                let x2_reversed = x2_coords.iter().cloned().rev().collect::<Vec<f64>>();
                 // Append thing to x1_coords to create a new vector
                 let x_combined = x1_coords
                     .into_iter()
-                    .chain(x_thing.into_iter())
-                    .collect::<Vec<T>>();
+                    .chain(x2_reversed.into_iter())
+                    .collect::<Vec<f64>>();
 
-                // Initial y vecs
-                let y1_coords = regions.0 .1[i].clone();
-                let y2_coords = regions.1 .1[i].clone();
-                let y_thing = y2_coords.iter().cloned().rev().collect::<Vec<T>>();
+                // Combine the two y coordinates for the bounding curves by reversing the second and appending into a longer vector.
+                let y1_coords = region.y_coordinates.0.clone();
+                let y2_coords = region.y_coordinates.1.clone();
+                let y2_reversed = y2_coords.iter().cloned().rev().collect::<Vec<f64>>();
                 // Append thing to x1_coords to create a new vector
                 let y_combined = y1_coords
                     .into_iter()
-                    .chain(y_thing.into_iter())
-                    .collect::<Vec<T>>();
+                    .chain(y2_reversed.into_iter())
+                    .collect::<Vec<f64>>();
 
                 let trace = Scatter::new(x_combined, y_combined)
                     .fill(Fill::ToSelf)
                     .fill_color(color)
                     .line(Line::new().color(NamedColor::Transparent))
-                    .name(&match &regions.3 {
-                        Some(names) => format!(" {} {} {}", "$\\Large{", names[i].clone(), "}$"),
+                    .name(&match region.name.clone() {
+                        Some(name) => format!(" {} {} {}", "$\\Large{", name, "}$"),
                         None => "".to_string(),
                     })
-                    .show_legend(match &regions.3 {
+                    .show_legend(match region.name {
                         Some(_) => true,
                         None => false,
                     });
@@ -125,34 +96,31 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
         }
         None => {}
     }
-    match curves.as_ref() {
+    match curves {
         Some(curves) => {
-            for i in 0..curves.0.len() {
-                let color = match &curves.2[0].3 {
-                    true => &curves.2[0],
-                    false => &curves.2[i],
-                };
-                let line = match color.0 {
-                    Color::Green => Line::new().color(PRIMITIVE_GREENS[color.1]),
-                    Color::Blue => Line::new().color(PRIMITIVE_BLUES[color.1]),
-                    Color::Purple => Line::new().color(PRIMITIVE_PURPLES[color.1]),
-                    Color::Grey => Line::new().color(PRIMITIVE_GREYS[color.1]),
+            for curve in curves.iter() {
+                let color_slot = curve.design.color_slot;
+                let line = match curve.design.color {
+                    Color::Green => Line::new().color(PRIMITIVE_GREENS[color_slot]),
+                    Color::Blue => Line::new().color(PRIMITIVE_BLUES[color_slot]),
+                    Color::Purple => Line::new().color(PRIMITIVE_PURPLES[color_slot]),
+                    Color::Grey => Line::new().color(PRIMITIVE_GREYS[color_slot]),
                     Color::Black => Line::new().color(PRIMITIVE_BLACK),
                     Color::White => Line::new().color(PRIMITIVE_WHITE),
                 };
-                let line = match &color.2 {
+                let line = match curve.design.emphasis {
                     Emphasis::Light => line.width(2.0),
                     Emphasis::Heavy => line.width(4.0),
                     Emphasis::Dashed => line.width(2.0).dash(plotly::common::DashType::Dash),
                 };
-                let trace = Scatter::new(curves.0[i].clone(), curves.1[i].clone())
+                let trace = Scatter::new(curve.x_coordinates.clone(), curve.y_coordinates.clone())
                     .mode(Mode::Lines)
                     .line(line)
-                    .name(&match &curves.3 {
-                        Some(names) => format!(" {} {} {}", "$\\Large{", names[i].clone(), "}$"),
+                    .name(&match curve.name.clone() {
+                        Some(name) => format!(" {} {} {}", "$\\Large{", name, "}$"),
                         None => "".to_string(),
                     })
-                    .show_legend(match &curves.3 {
+                    .show_legend(match curve.name {
                         Some(_) => true,
                         None => false,
                     });
@@ -161,7 +129,7 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
         }
         None => {}
     }
-    let x_label = format!("{} {} {}", "$\\LARGE{", labels.x_label.clone(), "}$");
+    let x_label = format!("{} {} {}", "$\\LARGE{", axes.x_label.clone(), "}$");
     let x_axis = Axis::new()
         .title(Title::new(&x_label).font(Font::new().size(24)))
         .show_grid(true)
@@ -173,9 +141,9 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
         .tick_suffix("}$")
         .tick_font(Font::new().size(24))
         .auto_margin(false)
-        .range(bounds.0)
+        .range(axes.bounds.0)
         .ticks(plotly::layout::TicksDirection::Outside);
-    let y_label = format!("{} {} {}", "$\\LARGE{", labels.y_label.clone(), "}$");
+    let y_label = format!("{} {} {}", "$\\LARGE{", axes.y_label.clone(), "}$");
     let y_axis = Axis::new()
         .title(Title::new(&y_label).font(Font::new().size(48)))
         .show_grid(true)
@@ -186,10 +154,10 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
         .tick_suffix("}$")
         .tick_font(Font::new().size(24))
         .auto_margin(false)
-        .range(bounds.1)
+        .range(axes.bounds.1)
         .ticks(plotly::layout::TicksDirection::Outside);
 
-    let (x_axis, y_axis) = match display_mode {
+    let (x_axis, y_axis) = match display.mode {
         DisplayMode::Light => (
             x_axis.color(PRIMITIVE_BLACK).line_color(PRIMITIVE_BLACK),
             y_axis.color(PRIMITIVE_BLACK).line_color(PRIMITIVE_BLACK),
@@ -199,19 +167,19 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
             y_axis.color(PRIMITIVE_WHITE).line_color(PRIMITIVE_WHITE),
         ),
     };
-    let plot_name = format!("{} {} {}", "$\\huge{", plot_name, "}$");
+    let title = format!("{} {} {}", "$\\huge{", title, "}$");
     let layout = plotly::Layout::new()
-        .title(plotly::common::Title::new(plot_name.as_str()))
+        .title(plotly::common::Title::new(title.as_str()))
         .x_axis(x_axis)
         .y_axis(y_axis)
         .width(1600)
         .height(900)
         .margin(Margin::new().bottom(100).left(160).top(100).right(100));
-    let layout = match transparent {
+    let layout = match display.transparent {
         true => layout
             .plot_background_color("rgba(0,0,0,0)")
             .paper_background_color("rgba(0,0,0,0)"),
-        false => match display_mode {
+        false => match display.mode {
             DisplayMode::Dark => layout
                 .plot_background_color(PRIMITIVE_BLACK)
                 .paper_background_color(PRIMITIVE_BLACK),
@@ -220,33 +188,29 @@ pub fn transparent_plot<T: Serialize + Clone + 'static>(
                 .paper_background_color(PRIMITIVE_WHITE),
         },
     };
-    // let layout = match curves.unwrap().3.or(regions.unwrap().3) {
-    //     Some(_) =>
-    let layout = match display_mode {
-            DisplayMode::Dark => layout
-                .show_legend(true)
-                .legend(
-                    Legend::new()
-                        .font(Font::new().color(PRIMITIVE_WHITE).size(24))
-                        .x(0.7)
-                        .y(0.9),
-                )
-                .font(Font::new().color(PRIMITIVE_WHITE)),
-            DisplayMode::Light => layout
-                .legend(
-                    Legend::new()
-                        .font(Font::new().color(PRIMITIVE_BLACK).size(24))
-                        .x(0.7)
-                        .y(0.9),
-                )
-                .font(Font::new().color(PRIMITIVE_BLACK)),
-        };
-    //     None => layout.show_legend(false),
-    // };
+    let layout = match display.mode {
+        DisplayMode::Dark => layout
+            .show_legend(true)
+            .legend(
+                Legend::new()
+                    .font(Font::new().color(PRIMITIVE_WHITE).size(24))
+                    .x(0.7)
+                    .y(0.9),
+            )
+            .font(Font::new().color(PRIMITIVE_WHITE)),
+        DisplayMode::Light => layout
+            .legend(
+                Legend::new()
+                    .font(Font::new().color(PRIMITIVE_BLACK).size(24))
+                    .x(0.7)
+                    .y(0.9),
+            )
+            .font(Font::new().color(PRIMITIVE_BLACK)),
+    };
 
     plot.set_layout(layout);
-    plot.write_html(plot_name.as_str().to_owned() + ".html");
-    if show {
+    plot.write_html(title.as_str().to_owned() + ".html");
+    if display.show {
         plot.show();
     }
 }
