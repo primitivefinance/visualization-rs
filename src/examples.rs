@@ -7,7 +7,7 @@ use statrs::consts;
 use crate::design::*;
 use crate::functions::*;
 use crate::plot::*;
-
+#[allow(unused)]
 /// Plot of different types of approximations to the Gaussian PDF
 pub fn compare_approximation_types(display: Display) {
     let title = String::from("\\text{Comparing Types of Approximations}");
@@ -52,12 +52,10 @@ pub fn compare_approximation_types(display: Display) {
     };
     let gaussian_pdf = Curve {
         x_coordinates: t.clone(),
-        y_coordinates: standard_gaussian_pdf(
-            t.clone().iter().map(|x| 2.0_f64.sqrt() * x).collect(),
-        )
-        .iter()
-        .map(|y| consts::SQRT_2PI * y)
-        .collect(),
+        y_coordinates: standard_gaussian_pdf(t.iter().map(|x| 2.0_f64.sqrt() * x).collect())
+            .iter()
+            .map(|y| consts::SQRT_2PI * y)
+            .collect(),
         design: gaussian_pdf_design,
         name: Some(String::from("\\exp\\left(-x^2\\right)")),
     };
@@ -81,7 +79,7 @@ pub fn compare_approximation_types(display: Display) {
         display,
     );
 }
-
+#[allow(unused)]
 /// Plots of polynomial approximations to the Gaussian PDF
 pub fn polynomial_approximations(display: Display) {
     let title = String::from("\\text{Polynomial Approximations}");
@@ -99,7 +97,7 @@ pub fn polynomial_approximations(display: Display) {
         .clone()
         .into_iter()
         .map(|n| match n % 2 {
-            0 => (((-1.0) as f64).powi(n.div(2))) / (factorial(n.div(2) as u32) as f64),
+            0 => ((-1.0_f64).powi(n.div(2))) / (factorial(n.div(2) as u32) as f64),
             _ => 0.0,
         })
         .collect::<Vec<f64>>();
@@ -115,7 +113,7 @@ pub fn polynomial_approximations(display: Display) {
             ),
             design: ElementDesign {
                 color: Color::Purple,
-                color_slot: degree.clone() as usize,
+                color_slot: degree as usize,
                 emphasis: Emphasis::Light,
             },
             name: Some(format!("{} {}", "\\text{Degree }", degree)),
@@ -131,12 +129,10 @@ pub fn polynomial_approximations(display: Display) {
     };
     let gaussian_pdf = Curve {
         x_coordinates: t.clone(),
-        y_coordinates: standard_gaussian_pdf(
-            t.clone().iter().map(|x| 2.0_f64.sqrt() * x).collect(),
-        )
-        .iter()
-        .map(|y| consts::SQRT_2PI * y)
-        .collect(),
+        y_coordinates: standard_gaussian_pdf(t.iter().map(|x| 2.0_f64.sqrt() * x).collect())
+            .iter()
+            .map(|y| consts::SQRT_2PI * y)
+            .collect(),
         design: gaussian_pdf_design,
         name: Some(String::from("\\exp\\left(-x^2\\right)")),
     };
@@ -151,7 +147,7 @@ pub fn polynomial_approximations(display: Display) {
 
     transparent_plot(Some(curves), None, axes, title, display);
 }
-
+#[allow(unused)]
 /// Plot RMM trading curve for multiple taus from a list of prices
 pub fn rmm_trading_curve_multiple_taus(display: Display) {
     let title = String::from("\\text{RMM Trading Curve}");
@@ -194,7 +190,7 @@ pub fn rmm_trading_curve_multiple_taus(display: Display) {
 
     transparent_plot(Some(curves), None, axes, title, display);
 }
-
+#[allow(unused)]
 /// Plot RMM trading curve for multiple rescalings
 pub fn rmm_trading_curve_rescaling(display: Display) {
     // Define the RMM-CC parameters
@@ -221,7 +217,7 @@ pub fn rmm_trading_curve_rescaling(display: Display) {
     // Choose the rescaling factors and build the curves
     let scale_factors = linspace(0.1, 1.0, 10);
     let mut curves = vec![];
-    for scale_factor in scale_factors.into_iter() {
+    for scale_factor in scale_factors {
         let (x_scale, y_scale) =
             rmm_trading_curve(prices.clone(), strike, sigma, tau, Some(scale_factor));
         let curve = Curve {
@@ -248,6 +244,7 @@ pub fn rmm_trading_curve_rescaling(display: Display) {
 }
 
 /// Plot RMM liquidity distribution for multiple taus
+#[allow(unused)]
 pub fn rmm_liquidity_distribution(display: Display) {
     let title = String::from("$\\text{RMM Liquidity Distribution}$");
 
@@ -298,6 +295,7 @@ pub fn rmm_liquidity_distribution(display: Display) {
 }
 
 /// Plot RMM portfolio value for multiple taus
+#[allow(unused)]
 pub fn rmm_portfolio_value(display: Display) {
     let title = "\\text{RMM Portfolio Value}".to_string();
 
@@ -348,7 +346,7 @@ pub fn rmm_portfolio_value(display: Display) {
     }
     // Make a dashed line at the strike price
     let strike_price_curve = Curve {
-        x_coordinates: prices.clone().iter().map(|_| strike).collect(),
+        x_coordinates: prices.iter().map(|_| strike).collect(),
         y_coordinates: linspace(0.0, 5.0, number_of_prices).collect(),
         design: ElementDesign {
             color: Color::Grey,
