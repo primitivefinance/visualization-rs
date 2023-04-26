@@ -445,7 +445,7 @@ pub fn leverage_zones_with_pvf(display: Display) {
 
 #[allow(unused)]
 pub fn brownian_bridge_plotter(display: Display, start_price: f64, end_price: f64) {
-    let title = "\\text{Brownian Bridge}".to_string();
+    let title = "\\text{Example Price Paths}".to_string();
 
     // Use a parameterization of the curves to build them
     let t_start = 0.0;
@@ -464,7 +464,7 @@ pub fn brownian_bridge_plotter(display: Display, start_price: f64, end_price: f6
             color_slot: MAIN_COLOR_SLOT,
             emphasis: Emphasis::Light,
         },
-        name: Some(String::from("High IV")),
+        name: Some(String::from("\\text{High IV}")),
     };
     let curve2 = Curve {
         x_coordinates: t.clone(),
@@ -474,7 +474,7 @@ pub fn brownian_bridge_plotter(display: Display, start_price: f64, end_price: f6
             color_slot: 2,
             emphasis: Emphasis::Light,
         },
-        name: Some(String::from("Low IV")),
+        name: Some(String::from("\\text{Low IV}")),
     };
 
     // Build the plot's axes
