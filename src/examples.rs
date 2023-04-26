@@ -251,7 +251,7 @@ pub fn rmm_liquidity_distribution(display: Display) {
     // Define the relavant RMM-CC parameters with multiple taus
     let strike = 3_f64;
     let sigma = 0.5_f64;
-    let taus: Vec<f64> = vec![2.0_f64, 1.5_f64, 1.0_f64, 0.5_f64, 0.1_f64];
+    let taus: Vec<f64> = vec![1.0_f64, 0.5_f64, 0.3_f64, 0.2_f64, 0.1_f64];
 
     // Create a list of prices that we will compute the reserves from
     let price_start = 0.0_f64;
@@ -368,6 +368,7 @@ pub fn rmm_portfolio_value(display: Display) {
 }
 
 /// Leverage zones plot with S^2 pvf
+#[allow(unused)]
 pub fn leverage_zones_with_pvf(display: Display) {
     let title = "\\text{Leverage Zones}".to_string();
 
@@ -440,4 +441,50 @@ pub fn leverage_zones_with_pvf(display: Display) {
         title,
         display,
     );
+}
+
+#[allow(unused)]
+pub fn brownian_bridge_plotter(display: Display, start_price: f64, end_price: f64) {
+    let title = "\\text{Example Price Paths}".to_string();
+
+    // Use a parameterization of the curves to build them
+    let t_start = 0.0;
+    let t_end = 1.0;
+    let number_of_points = 1000;
+    let mut t = linspace(t_start, t_end, number_of_points).collect::<Vec<f64>>(); // Parameter for curves
+
+    // Build brownian bridge curve
+    let brownian1 =
+        brownian_bridge_generator(start_price, end_price, t_end, number_of_points, 1.0, 4);
+    let brownian2 =
+        brownian_bridge_generator(start_price, end_price, t_end, number_of_points, 1.0, 33);
+    let curve1 = Curve {
+        x_coordinates: t.clone(),
+        y_coordinates: brownian1,
+        design: ElementDesign {
+            color: Color::Green,
+            color_slot: MAIN_COLOR_SLOT,
+            emphasis: Emphasis::Light,
+        },
+        name: Some(String::from("\\text{High IV}")),
+    };
+    let curve2 = Curve {
+        x_coordinates: t.clone(),
+        y_coordinates: brownian2,
+        design: ElementDesign {
+            color: Color::Green,
+            color_slot: 2,
+            emphasis: Emphasis::Light,
+        },
+        name: Some(String::from("\\text{Low IV}")),
+    };
+
+    // Build the plot's axes
+    let axes = Axes {
+        x_label: String::from("t"),
+        y_label: String::from("P(t)"),
+        bounds: (vec![0.0, 1.0], vec![0.0, 3000.0]),
+    };
+
+    transparent_plot(Some(vec![curve1, curve2]), None, axes, title, display);
 }

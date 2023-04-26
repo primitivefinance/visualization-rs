@@ -10,8 +10,8 @@ fn main() {
     // Global visualization variables
     let display = Display {
         transparent: true,
-        mode: DisplayMode::Light,
+        mode: DisplayMode::Dark,
         show: true,
     };
-    leverage_zones_with_pvf(display);
+    brownian_bridge_plotter(display, 1200.0, 2000.0);
 }

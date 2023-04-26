@@ -1,4 +1,7 @@
+use itertools_num::linspace;
+use rand::{Rng, SeedableRng};
 use rand_distr::{Distribution, Normal};
+use rand_pcg::Pcg64;
 use statrs::consts;
 use statrs::distribution::{ContinuousCDF, Normal as NormalDist};
 
@@ -12,6 +15,39 @@ pub fn _sample_normal(mean: f64, std_dev: f64, n: usize) -> Vec<f64> {
     }
     v
 }
+
+#[allow(unused)]
+pub fn brownian_bridge_generator(
+    start_price: f64,
+    end_price: f64,
+    end_time: f64,
+    steps: usize,
+    volatility: f64,
+    seed: u64,
+) -> Vec<f64> {
+    let t = linspace(0.0, end_time, steps).collect::<Vec<f64>>();
+    let mut rng = Pcg64::seed_from_u64(seed);
+    let normal = Normal::new(0.0, 1.0).unwrap();
+    let mut prices = vec![start_price];
+    let mut current_price = start_price;
+
+    for i in 1..steps {
+        let dt = t[i] - t[i - 1];
+        let z = rng.sample(normal);
+        current_price += z * dt.sqrt();
+        prices.push(current_price);
+    }
+    let bridge = prices
+        .iter()
+        .map(|x| {
+            start_price
+                + (end_price - start_price) * (x - prices[steps - 1])
+                    / (prices[0] - prices[steps - 1])
+        })
+        .collect();
+    bridge
+}
+
 // TODO: May be better to have functions not vectorized and use iterators outside.
 #[allow(unused)]
 pub fn d_one(x: Vec<f64>, strike: f64, sigma: f64, tau: f64) -> Vec<f64> {
