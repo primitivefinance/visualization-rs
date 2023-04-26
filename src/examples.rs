@@ -251,7 +251,7 @@ pub fn rmm_liquidity_distribution(display: Display) {
     // Define the relavant RMM-CC parameters with multiple taus
     let strike = 3_f64;
     let sigma = 0.5_f64;
-    let taus: Vec<f64> = vec![2.0_f64, 1.5_f64, 1.0_f64, 0.5_f64, 0.1_f64];
+    let taus: Vec<f64> = vec![1.0_f64, 0.5_f64, 0.3_f64, 0.2_f64, 0.1_f64];
 
     // Create a list of prices that we will compute the reserves from
     let price_start = 0.0_f64;
@@ -368,6 +368,7 @@ pub fn rmm_portfolio_value(display: Display) {
 }
 
 /// Leverage zones plot with S^2 pvf
+#[allow(unused)]
 pub fn leverage_zones_with_pvf(display: Display) {
     let title = "\\text{Leverage Zones}".to_string();
 
