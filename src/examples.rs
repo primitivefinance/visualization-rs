@@ -442,3 +442,47 @@ pub fn leverage_zones_with_pvf(display: Display) {
         display,
     );
 }
+
+#[allow(unused)]
+pub fn brownian_bridge_plotter(display: Display, start_price: f64, end_price: f64) {
+    let title = "\\text{Brownian Bridge}".to_string();
+
+    // Use a parameterization of the curves to build them
+    let t_start = 0.0;
+    let t_end = 1.0;
+    let number_of_points = 1000;
+    let mut t = linspace(t_start, t_end, number_of_points).collect::<Vec<f64>>(); // Parameter for curves
+
+    // Build brownian bridge curve
+    let brownian1 = brownian_bridge_generator(start_price, end_price, t_end, number_of_points, 1.0, 4);
+    let brownian2 = brownian_bridge_generator(start_price, end_price, t_end, number_of_points, 1.0, 33);
+    let curve1 = Curve {
+        x_coordinates: t.clone(),
+        y_coordinates: brownian1,
+        design: ElementDesign {
+            color: Color::Green,
+            color_slot: MAIN_COLOR_SLOT,
+            emphasis: Emphasis::Light,
+        },
+        name: Some(String::from("High IV")),
+    };
+    let curve2 = Curve {
+        x_coordinates: t.clone(),
+        y_coordinates: brownian2,
+        design: ElementDesign {
+            color: Color::Green,
+            color_slot: 2,
+            emphasis: Emphasis::Light,
+        },
+        name: Some(String::from("Low IV")),
+    };
+
+    // Build the plot's axes
+    let axes = Axes {
+        x_label: String::from("t"),
+        y_label: String::from("P(t)"),
+        bounds: (vec![0.0, 1.0], vec![0.0, 3000.0]),
+    };   
+
+    transparent_plot(Some(vec![curve1, curve2]), None, axes, title, display);
+}
