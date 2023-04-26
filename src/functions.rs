@@ -1,9 +1,9 @@
 use itertools_num::linspace;
 use rand::{Rng, SeedableRng};
 use rand_distr::{Distribution, Normal};
+use rand_pcg::Pcg64;
 use statrs::consts;
 use statrs::distribution::{ContinuousCDF, Normal as NormalDist};
-use rand_pcg::Pcg64;
 
 #[allow(unused)]
 pub fn _sample_normal(mean: f64, std_dev: f64, n: usize) -> Vec<f64> {
@@ -36,8 +36,15 @@ pub fn brownian_bridge_generator(
         let z = rng.sample(normal);
         current_price += z * dt.sqrt();
         prices.push(current_price);
-    };
-    let bridge = prices.iter().map(|x| start_price + (end_price - start_price) * (x - prices[steps - 1]) / (prices[0] - prices[steps - 1])).collect();
+    }
+    let bridge = prices
+        .iter()
+        .map(|x| {
+            start_price
+                + (end_price - start_price) * (x - prices[steps - 1])
+                    / (prices[0] - prices[steps - 1])
+        })
+        .collect();
     bridge
 }
 
