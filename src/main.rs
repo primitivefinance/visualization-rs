@@ -13,5 +13,5 @@ fn main() {
         mode: DisplayMode::Dark,
         show: true,
     };
-    brownian_bridge_plotter(display, 1200.0, 2000.0);
+    rmm_portfolio_value(display);
 }

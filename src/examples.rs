@@ -246,7 +246,7 @@ pub fn rmm_trading_curve_rescaling(display: Display) {
 /// Plot RMM liquidity distribution for multiple taus
 #[allow(unused)]
 pub fn rmm_liquidity_distribution(display: Display) {
-    let title = String::from("$\\text{RMM Liquidity Distribution}$");
+    let title = String::from("\\text{RMM Liquidity Distribution}");
 
     // Define the relavant RMM-CC parameters with multiple taus
     let strike = 3_f64;
@@ -284,10 +284,24 @@ pub fn rmm_liquidity_distribution(display: Display) {
         };
         curves.push(curve);
     }
+
+    // Make a dashed line at the strike price
+    let strike_price_curve = Curve {
+        x_coordinates: prices.iter().map(|_| strike).collect(),
+        y_coordinates: linspace(0.0, 5.0, number_of_prices).collect(),
+        design: ElementDesign {
+            color: Color::Grey,
+            color_slot: MAIN_COLOR_SLOT,
+            emphasis: Emphasis::Dashed,
+        },
+        name: Some(String::from("\\text{Strike}")),
+    };
+    curves.push(strike_price_curve);
+
     // Build the plot's axes
     let axes = Axes {
-        x_label: String::from("S"),
-        y_label: String::from("L(S)"),
+        x_label: String::from("\\text{Price}"),
+        y_label: String::from("\\text{Liquidity}"),
         bounds: (vec![price_start, price_end], vec![0.0, 1.0]),
     };
 
@@ -297,7 +311,8 @@ pub fn rmm_liquidity_distribution(display: Display) {
 /// Plot RMM portfolio value for multiple taus
 #[allow(unused)]
 pub fn rmm_portfolio_value(display: Display) {
-    let title = "\\text{RMM Portfolio Value}".to_string();
+    // let title = "\\text{RMM Portfolio Value}".to_string();
+    let title = String::from("");
 
     // Define the relavant RMM-CC parameters with multiple taus
     let strike = 3_f64;
@@ -353,7 +368,7 @@ pub fn rmm_portfolio_value(display: Display) {
             color_slot: MAIN_COLOR_SLOT,
             emphasis: Emphasis::Dashed,
         },
-        name: Some(String::from("Strike")),
+        name: Some(String::from("\\text{Strike}")),
     };
     curves.push(strike_price_curve);
 
