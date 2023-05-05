@@ -4,6 +4,8 @@ use rand_distr::{Distribution, Normal};
 use rand_pcg::Pcg64;
 use statrs::consts;
 use statrs::distribution::{ContinuousCDF, Normal as NormalDist};
+use std::{error::Error, fs::File};
+use csv::ReaderBuilder;
 
 #[allow(unused)]
 pub fn _sample_normal(mean: f64, std_dev: f64, n: usize) -> Vec<f64> {
@@ -132,4 +134,22 @@ pub fn parametric_line(t: Vec<f64>, a: f64, b: f64, x_0: f64, y_0: f64) -> (Vec<
         y.push(b * t_val + y_0);
     }
     (x, y)
+}
+#[allow(unused)]
+/// Import CSV file of price data
+/// # Arguments
+/// * `file_path` - path to csv file of price data (String)
+/// # Returns
+/// * `price_data` - Vector of prices. (Vec<f64>)
+pub fn import_price_from_csv(file_path: &str) -> Result<Vec<f64>, Box<dyn Error>> {
+    let mut price_data: Vec<f64> = Vec::new();
+    let file = File::open(file_path)?;
+    let mut reader = ReaderBuilder::new().from_reader(file);
+
+    for result in reader.deserialize() {
+        let num: f64 = result?;
+        price_data.push(num);
+    }
+
+    Ok(price_data)
 }
