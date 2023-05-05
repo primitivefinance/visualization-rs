@@ -422,7 +422,7 @@ pub fn brownian_bridge_plotter(display: Display, start_price: f64, end_price: f6
     let t_end = 1.0;
     let number_of_points = 1000;
     let mut t = linspace(t_start, t_end, number_of_points).collect::<Vec<f64>>(); // Parameter for curves
-    // Build brownian bridge curve
+                                                                                  // Build brownian bridge curve
     let brownian1 =
         brownian_bridge_generator(start_price, end_price, t_end, number_of_points, 1.0, 4);
     let brownian2 =
