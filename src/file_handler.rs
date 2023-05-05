@@ -1,9 +1,9 @@
-use std::{error::Error, fs::File};
 use csv::ReaderBuilder;
 use itertools_num::linspace;
+use std::{error::Error, fs::File};
 
-use crate::plot::*;
 use crate::design::*;
+use crate::plot::*;
 
 #[allow(unused)]
 /// Import CSV file of price data

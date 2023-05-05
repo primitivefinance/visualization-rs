@@ -1,12 +1,12 @@
 mod design;
 mod examples;
+mod file_handler;
 mod functions;
 mod plot;
-mod file_handler;
-#[allow(unused)]
-use file_handler::*;
 use design::DisplayMode;
 use examples::*;
+#[allow(unused)]
+use file_handler::*;
 use plot::*;
 
 fn main() {
