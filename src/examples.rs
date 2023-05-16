@@ -21,8 +21,7 @@ pub fn compare_approximation_types(display: Display) {
     let polynomial_approximation_design = CurveDesign {
         color: Color::Purple,
         color_slot: MAIN_COLOR_SLOT,
-        style: Style::Markers,
-        emphasis: Emphasis::Light,
+        style: Style::Lines(LineEmphasis::Light),
     };
     let polynomial_approximation = Curve {
         x_coordinates: t.clone(),
@@ -34,8 +33,7 @@ pub fn compare_approximation_types(display: Display) {
     let rational_approximation_design = CurveDesign {
         color: Color::Blue,
         color_slot: MAIN_COLOR_SLOT,
-        style: Style::Lines,
-        emphasis: Emphasis::Light,
+        style: Style::Lines(LineEmphasis::Light),
     };
     let rational_approximation = Curve {
         x_coordinates: t.clone(),
@@ -47,8 +45,7 @@ pub fn compare_approximation_types(display: Display) {
     let gaussian_pdf_design = CurveDesign {
         color: Color::Green,
         color_slot: MAIN_COLOR_SLOT,
-        style: Style::Lines,
-        emphasis: Emphasis::Heavy,
+        style: Style::Lines(LineEmphasis::Heavy),
     };
     let gaussian_pdf = Curve {
         x_coordinates: t.clone(),
@@ -110,8 +107,8 @@ pub fn polynomial_approximations(display: Display) {
             design: CurveDesign {
                 color: Color::Purple,
                 color_slot: degree as usize,
-                style: Style::Lines,
-                emphasis: Emphasis::Light,
+                style: Style::Lines(LineEmphasis::
+Light),
             },
             name: Some(format!("{} {}", "\\text{Degree }", degree)),
         };
@@ -121,8 +118,7 @@ pub fn polynomial_approximations(display: Display) {
     let gaussian_pdf_design = CurveDesign {
         color: Color::Green,
         color_slot: MAIN_COLOR_SLOT,
-        style: Style::Lines,
-        emphasis: Emphasis::Heavy,
+        style: Style::Lines(LineEmphasis::Heavy),
     };
     let gaussian_pdf = Curve {
         x_coordinates: t.clone(),
@@ -167,8 +163,8 @@ pub fn rmm_trading_curve_multiple_taus(display: Display) {
             design: CurveDesign {
                 color: Color::Green,
                 color_slot: index,
-                style: Style::Lines,
-                emphasis: Emphasis::Light,
+                style: Style::Lines(LineEmphasis::
+Light),
             },
             name: Some(format!("{} {}", "\\tau=", tau)),
         };
@@ -217,8 +213,8 @@ pub fn rmm_trading_curve_rescaling(display: Display) {
             design: CurveDesign {
                 color: Color::Green,
                 color_slot: MAIN_COLOR_SLOT,
-                style: Style::Lines,
-                emphasis: Emphasis::Light,
+                style: Style::Lines(LineEmphasis::
+Light),
             },
             name: Some(format!("{} {}", "\\text{Scale }", scale_factor)),
         };
@@ -266,8 +262,8 @@ pub fn rmm_liquidity_distribution(display: Display) {
             design: CurveDesign {
                 color: Color::Green,
                 color_slot: index,
-                style: Style::Lines,
-                emphasis: Emphasis::Light,
+                style: Style::Lines(LineEmphasis::
+Light),
             },
             name: Some(format!("{} {}", "\\tau=", tau)),
         };
@@ -323,8 +319,8 @@ pub fn rmm_portfolio_value(display: Display) {
             design: CurveDesign {
                 color: Color::Green,
                 color_slot: index,
-                style: Style::Lines,
-                emphasis: Emphasis::Light,
+                style: Style::Lines(LineEmphasis::
+Light),
             },
             name: Some(format!("{} {}", "\\tau=", tau)),
         };
@@ -338,8 +334,7 @@ pub fn rmm_portfolio_value(display: Display) {
         design: CurveDesign {
             color: Color::Grey,
             color_slot: MAIN_COLOR_SLOT,
-            style: Style::Lines,
-            emphasis: Emphasis::Dashed,
+            style: Style::Lines(LineEmphasis::Dashed),
         },
         name: Some(String::from("Strike")),
     };
@@ -370,8 +365,7 @@ pub fn leverage_zones_with_pvf(display: Display) {
         design: CurveDesign {
             color: Color::Green,
             color_slot: MAIN_COLOR_SLOT,
-            style: Style::Lines,
-            emphasis: Emphasis::Heavy,
+            style: Style::Lines(LineEmphasis::Heavy),
         },
         name: Some(String::from("V(S)=S^2")),
     };
@@ -443,8 +437,7 @@ pub fn brownian_bridge_plotter(display: Display, start_price: f64, end_price: f6
         design: CurveDesign {
             color: Color::Green,
             color_slot: MAIN_COLOR_SLOT,
-            style: Style::Lines,
-            emphasis: Emphasis::Light,
+            style: Style::Lines(LineEmphasis::Light),
         },
         name: Some(String::from("\\text{High Volatility}")),
     };
@@ -454,8 +447,7 @@ pub fn brownian_bridge_plotter(display: Display, start_price: f64, end_price: f6
         design: CurveDesign {
             color: Color::Green,
             color_slot: 2,
-            style: Style::Lines,
-            emphasis: Emphasis::Light,
+            style: Style::Lines(LineEmphasis::Light),
         },
         name: Some(String::from("\\text{Low Volatility}")),
     };
@@ -488,8 +480,7 @@ pub fn cubic_spline_plotter(display: Display) {
         design: CurveDesign {
             color: Color::Green,
             color_slot: MAIN_COLOR_SLOT,
-            style: Style::Markers,
-            emphasis: Emphasis::Heavy,
+            style: Style::Markers(MarkerEmphasis::Heavy),
         },
         name: Some(String::from("\\text{CDF Points}")), // TODO: Make this just discrete points
     };
@@ -508,8 +499,7 @@ pub fn cubic_spline_plotter(display: Display) {
         design: CurveDesign {
             color: Color::Blue,
             color_slot: MAIN_COLOR_SLOT,
-            style: Style::Lines,
-            emphasis: Emphasis::Heavy,
+            style: Style::Lines(LineEmphasis::Heavy),
         },
         name: Some(String::from("\\text{CDF Spline}")),
     };

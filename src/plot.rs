@@ -94,8 +94,8 @@ pub fn transparent_plot(
     if let Some(curves) = curves {
         for curve in curves.iter() {
             let color_slot = curve.design.color_slot;
-            let trace = match curve.design.style {
-                Style::Lines => {
+            let trace = match &curve.design.style {
+                Style::Lines(line_emphasis) => {
                     let line = match curve.design.color {
                         Color::Green => Line::new().color(PRIMITIVE_GREENS[color_slot]),
                         Color::Blue => Line::new().color(PRIMITIVE_BLUES[color_slot]),
@@ -104,10 +104,10 @@ pub fn transparent_plot(
                         Color::Black => Line::new().color(PRIMITIVE_BLACK),
                         Color::White => Line::new().color(PRIMITIVE_WHITE),
                     };
-                    let line = match curve.design.emphasis {
-                        Emphasis::Light => line.width(2.0),
-                        Emphasis::Heavy => line.width(4.0),
-                        Emphasis::Dashed => line.width(2.0).dash(plotly::common::DashType::Dash),
+                    let line = match line_emphasis {
+                        LineEmphasis::Light => line.width(2.0),
+                        LineEmphasis::Heavy => line.width(4.0),
+                        LineEmphasis::Dashed => line.width(2.0).dash(plotly::common::DashType::Dash),
                     };
                     Scatter::new(curve.x_coordinates.clone(), curve.y_coordinates.clone())
                         .mode(Mode::Lines)
@@ -118,7 +118,7 @@ pub fn transparent_plot(
                         })
                         .show_legend(curve.name.is_some())
                 },
-                Style::Markers => {
+                Style::Markers(marker_emphasis) => {
                     let marker = match curve.design.color {
                         Color::Green => Marker::new().color(PRIMITIVE_GREENS[color_slot]),
                         Color::Blue => Marker::new().color(PRIMITIVE_BLUES[color_slot]),
@@ -127,10 +127,9 @@ pub fn transparent_plot(
                         Color::Black => Marker::new().color(PRIMITIVE_BLACK),
                         Color::White => Marker::new().color(PRIMITIVE_WHITE),
                     };
-                    let marker = match curve.design.emphasis {
-                        Emphasis::Light => marker.size(10),
-                        Emphasis::Heavy => marker.size(20),
-                        Emphasis::Dashed => panic!("Cannot have dashed markers!"),
+                    let marker = match marker_emphasis {
+                        MarkerEmphasis::Light => marker.size(10),
+                        MarkerEmphasis::Heavy => marker.size(20),
                     };
                     Scatter::new(curve.x_coordinates.clone(), curve.y_coordinates.clone())
                         .mode(Mode::Markers)

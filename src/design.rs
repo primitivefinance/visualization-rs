@@ -17,14 +17,19 @@ pub enum Color {
 }
 
 pub enum Style {
-    Lines,
-    Markers,
+    Lines(LineEmphasis),
+    Markers(MarkerEmphasis),
 }
 
-pub enum Emphasis {
+pub enum LineEmphasis {
     Light,
     Heavy,
     Dashed,
+}
+
+pub enum MarkerEmphasis {
+    Light,
+    Heavy,
 }
 
 pub struct RegionDesign {
@@ -36,7 +41,6 @@ pub struct CurveDesign {
     pub color: Color,
     pub color_slot: usize,
     pub style: Style,
-    pub emphasis: Emphasis,
 }
 
 pub const MAIN_COLOR_SLOT: usize = 5;
