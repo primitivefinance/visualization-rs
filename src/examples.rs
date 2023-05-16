@@ -2,6 +2,7 @@
 use std::ops::Div;
 
 use itertools_num::linspace;
+use mentat::MonotonicCubicSpline;
 use statrs::consts;
 
 use crate::design::*;
@@ -455,4 +456,57 @@ pub fn brownian_bridge_plotter(display: Display, start_price: f64, end_price: f6
     };
     //plot
     transparent_plot(Some(vec![curve1, curve2]), None, axes, title, display);
+}
+
+#[allow(unused)]
+pub fn cubic_spline_plotter(display: Display) {
+    let number_of_points = 5;
+    let title = format!("{}{}{}", "\\text{Monotonic Cubic Spline Approximation for ", number_of_points, " Points}");
+
+    // Use a parameterization of the curves to build them
+    let x_start = -3.0;
+    let x_end = 3.0;
+
+    let x_coordinates = linspace(x_start, x_end, number_of_points).collect::<Vec<f64>>(); // Parameter for curves
+
+    // Get the CDF points
+    let y_coordinates = standard_gaussian_cdf(x_coordinates.clone());
+    let curve = Curve {
+        x_coordinates: x_coordinates.clone(),
+        y_coordinates: y_coordinates.clone(),
+        design: ElementDesign {
+            color: Color::Green,
+            color_slot: 2,
+            emphasis: Emphasis::Heavy,
+        },
+        name: Some(String::from("\\text{CDF Points}")), // TODO: Make this just discrete points
+    };
+
+    // Get the cubic spline
+    let mut spline = MonotonicCubicSpline::new(&x_coordinates, &y_coordinates);
+    let x_spline_coordinates = linspace(x_start, x_end, 1000).collect::<Vec<f64>>(); // Parameter for curves
+    let y_spline_coordinates = x_spline_coordinates
+        .clone()
+        .into_iter()
+        .map(|x| spline.interpolate(x))
+        .collect::<Vec<f64>>();
+    let spline_curve = Curve {
+        x_coordinates: x_spline_coordinates,
+        y_coordinates: y_spline_coordinates,
+        design: ElementDesign {
+            color: Color::Blue,
+            color_slot: MAIN_COLOR_SLOT,
+            emphasis: Emphasis::Heavy,
+        },
+        name: Some(String::from("\\text{CDF Spline}")),
+    };
+
+    // Build the plot's axes
+    let axes = Axes {
+        x_label: String::from("x"),
+        y_label: String::from("\\Phi(x)"),
+        bounds: (vec![-3.0, 3.0], vec![0.0, 1.0]),
+    };
+
+    transparent_plot(Some(vec![curve, spline_curve]), None, axes, title, display);
 }

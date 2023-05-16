@@ -184,7 +184,7 @@ pub fn transparent_plot(
             .legend(
                 Legend::new()
                     .font(Font::new().color(PRIMITIVE_WHITE).size(24))
-                    .x(0.7)
+                    .x(0.8)
                     .y(0.9),
             )
             .font(Font::new().color(PRIMITIVE_WHITE)),
@@ -192,7 +192,7 @@ pub fn transparent_plot(
             .legend(
                 Legend::new()
                     .font(Font::new().color(PRIMITIVE_BLACK).size(24))
-                    .x(0.7)
+                    .x(0.8)
                     .y(0.9),
             )
             .font(Font::new().color(PRIMITIVE_BLACK)),
