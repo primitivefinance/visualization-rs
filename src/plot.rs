@@ -1,7 +1,7 @@
 #![warn(missing_docs)]
 use plotly::{
     color::NamedColor,
-    common::{Fill, Font, Line, Mode, Title, Marker},
+    common::{Fill, Font, Line, Marker, Mode, Title},
     layout::{Axis, Legend, Margin},
     Plot, Scatter,
 };
@@ -107,7 +107,9 @@ pub fn transparent_plot(
                     let line = match line_emphasis {
                         LineEmphasis::Light => line.width(2.0),
                         LineEmphasis::Heavy => line.width(4.0),
-                        LineEmphasis::Dashed => line.width(2.0).dash(plotly::common::DashType::Dash),
+                        LineEmphasis::Dashed => {
+                            line.width(2.0).dash(plotly::common::DashType::Dash)
+                        }
                     };
                     Scatter::new(curve.x_coordinates.clone(), curve.y_coordinates.clone())
                         .mode(Mode::Lines)
@@ -117,7 +119,7 @@ pub fn transparent_plot(
                             None => "".to_string(),
                         })
                         .show_legend(curve.name.is_some())
-                },
+                }
                 Style::Markers(marker_emphasis) => {
                     let marker = match curve.design.color {
                         Color::Green => Marker::new().color(PRIMITIVE_GREENS[color_slot]),
@@ -139,7 +141,7 @@ pub fn transparent_plot(
                             None => "".to_string(),
                         })
                         .show_legend(curve.name.is_some())
-                },
+                }
             };
             plot.add_trace(trace);
         }

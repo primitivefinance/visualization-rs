@@ -89,7 +89,6 @@ pub fn polynomial_approximations(display: Display) {
     let coefficient_range = 0..top_degree + 1;
     let coefficients = coefficient_range
         .clone()
-        .into_iter()
         .map(|n| match n % 2 {
             0 => ((-1.0_f64).powi(n.div(2))) / (factorial(n.div(2) as u32) as f64),
             _ => 0.0,
@@ -107,8 +106,7 @@ pub fn polynomial_approximations(display: Display) {
             design: CurveDesign {
                 color: Color::Purple,
                 color_slot: degree as usize,
-                style: Style::Lines(LineEmphasis::
-Light),
+                style: Style::Lines(LineEmphasis::Light),
             },
             name: Some(format!("{} {}", "\\text{Degree }", degree)),
         };
@@ -163,8 +161,7 @@ pub fn rmm_trading_curve_multiple_taus(display: Display) {
             design: CurveDesign {
                 color: Color::Green,
                 color_slot: index,
-                style: Style::Lines(LineEmphasis::
-Light),
+                style: Style::Lines(LineEmphasis::Light),
             },
             name: Some(format!("{} {}", "\\tau=", tau)),
         };
@@ -213,8 +210,7 @@ pub fn rmm_trading_curve_rescaling(display: Display) {
             design: CurveDesign {
                 color: Color::Green,
                 color_slot: MAIN_COLOR_SLOT,
-                style: Style::Lines(LineEmphasis::
-Light),
+                style: Style::Lines(LineEmphasis::Light),
             },
             name: Some(format!("{} {}", "\\text{Scale }", scale_factor)),
         };
@@ -262,8 +258,7 @@ pub fn rmm_liquidity_distribution(display: Display) {
             design: CurveDesign {
                 color: Color::Green,
                 color_slot: index,
-                style: Style::Lines(LineEmphasis::
-Light),
+                style: Style::Lines(LineEmphasis::Light),
             },
             name: Some(format!("{} {}", "\\tau=", tau)),
         };
@@ -319,8 +314,7 @@ pub fn rmm_portfolio_value(display: Display) {
             design: CurveDesign {
                 color: Color::Green,
                 color_slot: index,
-                style: Style::Lines(LineEmphasis::
-Light),
+                style: Style::Lines(LineEmphasis::Light),
             },
             name: Some(format!("{} {}", "\\tau=", tau)),
         };
@@ -442,7 +436,7 @@ pub fn brownian_bridge_plotter(display: Display, start_price: f64, end_price: f6
         name: Some(String::from("\\text{High Volatility}")),
     };
     let curve2 = Curve {
-        x_coordinates: t.clone(),
+        x_coordinates: t,
         y_coordinates: brownian2,
         design: CurveDesign {
             color: Color::Green,
@@ -464,7 +458,10 @@ pub fn brownian_bridge_plotter(display: Display, start_price: f64, end_price: f6
 #[allow(unused)]
 pub fn cubic_spline_plotter(display: Display) {
     let number_of_points = 7;
-    let title = format!("{}{}{}", "\\text{Monotonic Cubic Spline Approximation for ", number_of_points, " Points}");
+    let title = format!(
+        "{}{}{}",
+        "\\text{Monotonic Cubic Spline Approximation for ", number_of_points, " Points}"
+    );
 
     // Use a parameterization of the curves to build them
     let x_start = -3.0;
