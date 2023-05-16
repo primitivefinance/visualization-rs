@@ -16,15 +16,26 @@ pub enum Color {
     White,
 }
 
+pub enum Style {
+    Lines,
+    Markers,
+}
+
 pub enum Emphasis {
     Light,
     Heavy,
     Dashed,
 }
 
-pub struct ElementDesign {
+pub struct RegionDesign {
     pub color: Color,
     pub color_slot: usize,
+}
+
+pub struct CurveDesign {
+    pub color: Color,
+    pub color_slot: usize,
+    pub style: Style,
     pub emphasis: Emphasis,
 }
 

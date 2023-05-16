@@ -39,9 +39,10 @@ pub fn csv_plotter(display: Display, file_path: &str) {
     let curve = Curve {
         x_coordinates: t.clone(),
         y_coordinates: value,
-        design: ElementDesign {
+        design: CurveDesign {
             color: Color::Green,
             color_slot: MAIN_COLOR_SLOT,
+            style: Style::Lines,
             emphasis: Emphasis::Light,
         },
         name: Some(String::from("\\text{csv data}")),
