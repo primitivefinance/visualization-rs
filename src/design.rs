@@ -16,27 +16,32 @@ pub enum Color {
     White,
 }
 
+#[allow(unused)]
 pub enum Style {
     Lines(LineEmphasis),
     Markers(MarkerEmphasis),
 }
 
+#[allow(unused)]
 pub enum LineEmphasis {
     Light,
     Heavy,
     Dashed,
 }
 
+#[allow(unused)]
 pub enum MarkerEmphasis {
     Light,
     Heavy,
 }
 
+#[allow(unused)]
 pub struct RegionDesign {
     pub color: Color,
     pub color_slot: usize,
 }
 
+#[allow(unused)]
 pub struct CurveDesign {
     pub color: Color,
     pub color_slot: usize,

@@ -3,3 +3,5 @@ Cargo.lock
 *.png
 *.html
 *.DS_Store
+*.csv
+!test_prices.csv
