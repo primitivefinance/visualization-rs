@@ -1,4 +1,5 @@
 #![warn(missing_docs)]
+use std::error::Error;
 use std::ops::Div;
 
 use itertools_num::linspace;
@@ -6,6 +7,7 @@ use mentat::MonotonicCubicSpline;
 use statrs::consts;
 
 use crate::design::*;
+use crate::file_handler::read_column_from_csv;
 use crate::functions::*;
 use crate::plot::*;
 #[allow(unused)]
@@ -509,4 +511,42 @@ pub fn cubic_spline_plotter(display: Display) {
     };
 
     transparent_plot(Some(vec![curve, spline_curve]), None, axes, title, display);
+}
+
+/// Plot imported csv data for single column csv's
+pub fn csv_plotter(display: Display) -> Result<(), Box<dyn Error>> {
+    // Get the file information
+    let file_path = "test_prices.csv";
+    let column_name = "liquid_exchange_prices";
+
+    // Import the data from the csv file
+    let prices = read_column_from_csv(file_path, column_name)?;
+
+    // Use a parameterization of the curves to build them
+    let number_of_points = prices.len();
+    let t_start = 0.0;
+    let t_end = number_of_points as f64;
+    let t = linspace(t_start, t_end, number_of_points).collect::<Vec<f64>>();
+
+    // Build curve
+    let curve = Curve {
+        x_coordinates: t,
+        y_coordinates: prices,
+        design: CurveDesign {
+            color: Color::Green,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Lines(LineEmphasis::Light),
+        },
+        name: Some(String::from("\\text{Liquid Exchange Prices}")),
+    };
+    // build plot axes and title
+    let title = "\\text{csv Data}".to_string();
+    let axes = Axes {
+        x_label: String::from("\\text{Trade Number}"),
+        y_label: String::from("\\text{Prices}"),
+        bounds: (vec![0.0, t_end], vec![0.95, 1.05]),
+    };
+    //plot
+    transparent_plot(Some(vec![curve]), None, axes, title, display);
+    Ok(())
 }

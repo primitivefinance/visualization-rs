@@ -9,12 +9,14 @@ use examples::*;
 use file_handler::*;
 use plot::*;
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Global visualization variables
     let display = Display {
         transparent: false,
         mode: DisplayMode::Light,
         show: true,
     };
-    cubic_spline_plotter(display)
+    csv_plotter(display)?;
+
+    Ok(())
 }

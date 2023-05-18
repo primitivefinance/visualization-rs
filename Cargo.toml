@@ -15,3 +15,4 @@ serde = { version = "1.0", features = ["derive"] }
 statrs = "0.16.0"
 csv= "1.2.1"
 mentat = "0.0.4"
+polars = "0.29.0"
