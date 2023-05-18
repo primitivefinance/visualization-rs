@@ -133,3 +133,41 @@ pub fn parametric_line(t: Vec<f64>, a: f64, b: f64, x_0: f64, y_0: f64) -> (Vec<
     }
     (x, y)
 }
+#[allow(unused)]
+pub fn rmm_cc_payoff(
+    prices: Vec<f64>,
+    strike: f64,
+    sigma: f64,
+    tau: f64,
+) -> (Vec<f64>, Vec<f64>) {
+    let n = prices.len();
+    let mut v = Vec::with_capacity(n);
+    let d1 = d_one(prices.clone(), strike, sigma, tau);
+    let d2 = d_two(prices.clone(), strike, sigma, tau);
+    let normal = NormalDist::new(0.0, 1.0).unwrap();
+    for i in 0..n {
+        let g = (1.0 - normal.cdf(d1[i])) * prices[i] + strike * normal.cdf(d2[i]);
+        v.push(g);
+    }
+    (prices, v)
+}
+#[allow(unused)]
+pub fn rmm_pp_payoff(
+    prices: Vec<f64>,
+    strike: f64,
+    sigma: f64,
+    rate: f64,
+) -> (Vec<f64>, Vec<f64>) {
+    let n = prices.len();
+    let mut v = Vec::with_capacity(n);
+    let ell = 2.0 * rate / (2.0 * rate + sigma.powi(2)) * strike;
+    for i in 0..n {
+        if prices[i] <= ell {
+            v.push(strike - prices[i])
+        } else {
+            let g = (strike - ell) * (ell / prices[i]).powf(2.0 * rate / sigma.powi(2));
+            v.push(g);
+        }
+    }
+    (prices, v)
+}
