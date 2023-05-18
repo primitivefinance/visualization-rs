@@ -12,9 +12,9 @@ use plot::*;
 fn main() {
     // Global visualization variables
     let display = Display {
-        transparent: true,
-        mode: DisplayMode::Dark,
+        transparent: false,
+        mode: DisplayMode::Light,
         show: true,
     };
-    brownian_bridge_plotter(display, 1200.0, 2000.0);
+    cubic_spline_plotter(display)
 }

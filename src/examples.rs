@@ -2,6 +2,7 @@
 use std::ops::Div;
 
 use itertools_num::linspace;
+use mentat::MonotonicCubicSpline;
 use statrs::consts;
 
 use crate::design::*;
@@ -17,10 +18,10 @@ pub fn compare_approximation_types(display: Display) {
     let number_of_points = 1000;
     let t = linspace(t_start, t_end, number_of_points).collect::<Vec<f64>>();
     // Build the polynomial approximation
-    let polynomial_approximation_design = ElementDesign {
+    let polynomial_approximation_design = CurveDesign {
         color: Color::Purple,
         color_slot: MAIN_COLOR_SLOT,
-        emphasis: Emphasis::Light,
+        style: Style::Lines(LineEmphasis::Light),
     };
     let polynomial_approximation = Curve {
         x_coordinates: t.clone(),
@@ -29,10 +30,10 @@ pub fn compare_approximation_types(display: Display) {
         name: Some(String::from("1-x^2")),
     };
     // Build the rational approximation
-    let rational_approximation_design = ElementDesign {
+    let rational_approximation_design = CurveDesign {
         color: Color::Blue,
         color_slot: MAIN_COLOR_SLOT,
-        emphasis: Emphasis::Light,
+        style: Style::Lines(LineEmphasis::Light),
     };
     let rational_approximation = Curve {
         x_coordinates: t.clone(),
@@ -41,10 +42,10 @@ pub fn compare_approximation_types(display: Display) {
         name: Some(String::from("(1-x^2)^{-1}")),
     };
     // Build the Gaussian PDF
-    let gaussian_pdf_design = ElementDesign {
+    let gaussian_pdf_design = CurveDesign {
         color: Color::Green,
         color_slot: MAIN_COLOR_SLOT,
-        emphasis: Emphasis::Heavy,
+        style: Style::Lines(LineEmphasis::Heavy),
     };
     let gaussian_pdf = Curve {
         x_coordinates: t.clone(),
@@ -88,7 +89,6 @@ pub fn polynomial_approximations(display: Display) {
     let coefficient_range = 0..top_degree + 1;
     let coefficients = coefficient_range
         .clone()
-        .into_iter()
         .map(|n| match n % 2 {
             0 => ((-1.0_f64).powi(n.div(2))) / (factorial(n.div(2) as u32) as f64),
             _ => 0.0,
@@ -103,20 +103,20 @@ pub fn polynomial_approximations(display: Display) {
                 t.clone(),
                 coefficients[0..1 + degree as usize].to_vec(),
             ),
-            design: ElementDesign {
+            design: CurveDesign {
                 color: Color::Purple,
                 color_slot: degree as usize,
-                emphasis: Emphasis::Light,
+                style: Style::Lines(LineEmphasis::Light),
             },
             name: Some(format!("{} {}", "\\text{Degree }", degree)),
         };
         curves.push(curve);
     }
     // Build the Gaussian PDF
-    let gaussian_pdf_design = ElementDesign {
+    let gaussian_pdf_design = CurveDesign {
         color: Color::Green,
         color_slot: MAIN_COLOR_SLOT,
-        emphasis: Emphasis::Heavy,
+        style: Style::Lines(LineEmphasis::Heavy),
     };
     let gaussian_pdf = Curve {
         x_coordinates: t.clone(),
@@ -158,10 +158,10 @@ pub fn rmm_trading_curve_multiple_taus(display: Display) {
         let curve = Curve {
             x_coordinates: reserves_x_tau,
             y_coordinates: reserves_y_tau,
-            design: ElementDesign {
+            design: CurveDesign {
                 color: Color::Green,
                 color_slot: index,
-                emphasis: Emphasis::Light,
+                style: Style::Lines(LineEmphasis::Light),
             },
             name: Some(format!("{} {}", "\\tau=", tau)),
         };
@@ -207,10 +207,10 @@ pub fn rmm_trading_curve_rescaling(display: Display) {
         let curve = Curve {
             x_coordinates: x_scale,
             y_coordinates: y_scale,
-            design: ElementDesign {
+            design: CurveDesign {
                 color: Color::Green,
                 color_slot: MAIN_COLOR_SLOT,
-                emphasis: Emphasis::Light,
+                style: Style::Lines(LineEmphasis::Light),
             },
             name: Some(format!("{} {}", "\\text{Scale }", scale_factor)),
         };
@@ -255,10 +255,10 @@ pub fn rmm_liquidity_distribution(display: Display) {
         let curve = Curve {
             x_coordinates: prices.clone(),
             y_coordinates: after_divide,
-            design: ElementDesign {
+            design: CurveDesign {
                 color: Color::Green,
                 color_slot: index,
-                emphasis: Emphasis::Light,
+                style: Style::Lines(LineEmphasis::Light),
             },
             name: Some(format!("{} {}", "\\tau=", tau)),
         };
@@ -311,10 +311,10 @@ pub fn rmm_portfolio_value(display: Display) {
                 .zip(temp2.iter())
                 .map(|(&x, &y)| x + strike * y)
                 .collect(),
-            design: ElementDesign {
+            design: CurveDesign {
                 color: Color::Green,
                 color_slot: index,
-                emphasis: Emphasis::Light,
+                style: Style::Lines(LineEmphasis::Light),
             },
             name: Some(format!("{} {}", "\\tau=", tau)),
         };
@@ -325,10 +325,10 @@ pub fn rmm_portfolio_value(display: Display) {
     let strike_price_curve = Curve {
         x_coordinates: prices.iter().map(|_| strike).collect(),
         y_coordinates: linspace(0.0, 5.0, number_of_prices).collect(),
-        design: ElementDesign {
+        design: CurveDesign {
             color: Color::Grey,
             color_slot: MAIN_COLOR_SLOT,
-            emphasis: Emphasis::Dashed,
+            style: Style::Lines(LineEmphasis::Dashed),
         },
         name: Some(String::from("Strike")),
     };
@@ -356,10 +356,10 @@ pub fn leverage_zones_with_pvf(display: Display) {
     let curve = Curve {
         x_coordinates: t.iter().map(|t| 5.0 * t).collect(),
         y_coordinates: t.iter().map(|t| 25.0 * t * t).collect(),
-        design: ElementDesign {
+        design: CurveDesign {
             color: Color::Green,
             color_slot: MAIN_COLOR_SLOT,
-            emphasis: Emphasis::Heavy,
+            style: Style::Lines(LineEmphasis::Heavy),
         },
         name: Some(String::from("V(S)=S^2")),
     };
@@ -374,10 +374,9 @@ pub fn leverage_zones_with_pvf(display: Display) {
             t.iter().map(|t| 5.0 * t).collect(),
             t.iter().map(|_| 5.0).collect(),
         ),
-        design: ElementDesign {
+        design: RegionDesign {
             color: Color::Purple,
             color_slot: MAIN_COLOR_SLOT,
-            emphasis: Emphasis::Light, // TODO: This does nothing on regions currently. Maybe have it adjust the transparency?
         },
         name: Some(String::from("Over-levered")),
     };
@@ -391,10 +390,9 @@ pub fn leverage_zones_with_pvf(display: Display) {
             t.iter().map(|t| 5.0 * t).collect(),
             t.iter().map(|_| 0.0).collect(),
         ),
-        design: ElementDesign {
+        design: RegionDesign {
             color: Color::Blue,
             color_slot: MAIN_COLOR_SLOT,
-            emphasis: Emphasis::Light, // TODO: This does nothing on regions currently. Maybe have it adjust the transparency?
         },
         name: Some(String::from("Under-levered")),
     };
@@ -430,20 +428,20 @@ pub fn brownian_bridge_plotter(display: Display, start_price: f64, end_price: f6
     let curve1 = Curve {
         x_coordinates: t.clone(),
         y_coordinates: brownian1,
-        design: ElementDesign {
+        design: CurveDesign {
             color: Color::Green,
             color_slot: MAIN_COLOR_SLOT,
-            emphasis: Emphasis::Light,
+            style: Style::Lines(LineEmphasis::Light),
         },
         name: Some(String::from("\\text{High Volatility}")),
     };
     let curve2 = Curve {
-        x_coordinates: t.clone(),
+        x_coordinates: t,
         y_coordinates: brownian2,
-        design: ElementDesign {
+        design: CurveDesign {
             color: Color::Green,
             color_slot: 2,
-            emphasis: Emphasis::Light,
+            style: Style::Lines(LineEmphasis::Light),
         },
         name: Some(String::from("\\text{Low Volatility}")),
     };
@@ -455,4 +453,60 @@ pub fn brownian_bridge_plotter(display: Display, start_price: f64, end_price: f6
     };
     //plot
     transparent_plot(Some(vec![curve1, curve2]), None, axes, title, display);
+}
+
+#[allow(unused)]
+pub fn cubic_spline_plotter(display: Display) {
+    let number_of_points = 7;
+    let title = format!(
+        "{}{}{}",
+        "\\text{Monotonic Cubic Spline Approximation for ", number_of_points, " Points}"
+    );
+
+    // Use a parameterization of the curves to build them
+    let x_start = -3.0;
+    let x_end = 3.0;
+
+    let x_coordinates = linspace(x_start, x_end, number_of_points).collect::<Vec<f64>>(); // Parameter for curves
+
+    // Get the CDF points
+    let y_coordinates = standard_gaussian_cdf(x_coordinates.clone());
+    let curve = Curve {
+        x_coordinates: x_coordinates.clone(),
+        y_coordinates: y_coordinates.clone(),
+        design: CurveDesign {
+            color: Color::Green,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Markers(MarkerEmphasis::Heavy),
+        },
+        name: Some(String::from("\\text{CDF Points}")), // TODO: Make this just discrete points
+    };
+
+    // Get the cubic spline
+    let mut spline = MonotonicCubicSpline::new(&x_coordinates, &y_coordinates);
+    let x_spline_coordinates = linspace(x_start, x_end, 1000).collect::<Vec<f64>>(); // Parameter for curves
+    let y_spline_coordinates = x_spline_coordinates
+        .clone()
+        .into_iter()
+        .map(|x| spline.interpolate(x))
+        .collect::<Vec<f64>>();
+    let spline_curve = Curve {
+        x_coordinates: x_spline_coordinates,
+        y_coordinates: y_spline_coordinates,
+        design: CurveDesign {
+            color: Color::Blue,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Lines(LineEmphasis::Heavy),
+        },
+        name: Some(String::from("\\text{CDF Spline}")),
+    };
+
+    // Build the plot's axes
+    let axes = Axes {
+        x_label: String::from("x"),
+        y_label: String::from("\\Phi(x)"),
+        bounds: (vec![-3.0, 3.0], vec![0.0, 1.0]),
+    };
+
+    transparent_plot(Some(vec![curve, spline_curve]), None, axes, title, display);
 }

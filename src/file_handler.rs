@@ -37,12 +37,12 @@ pub fn csv_plotter(display: Display, file_path: &str) {
     let t = linspace(t_start, t_end, number_of_points).collect::<Vec<f64>>();
     // build curve
     let curve = Curve {
-        x_coordinates: t.clone(),
+        x_coordinates: t,
         y_coordinates: value,
-        design: ElementDesign {
+        design: CurveDesign {
             color: Color::Green,
             color_slot: MAIN_COLOR_SLOT,
-            emphasis: Emphasis::Light,
+            style: Style::Lines(LineEmphasis::Light),
         },
         name: Some(String::from("\\text{csv data}")),
     };

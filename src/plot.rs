@@ -1,7 +1,7 @@
 #![warn(missing_docs)]
 use plotly::{
     color::NamedColor,
-    common::{Fill, Font, Line, Mode, Title},
+    common::{Fill, Font, Line, Marker, Mode, Title},
     layout::{Axis, Legend, Margin},
     Plot, Scatter,
 };
@@ -11,7 +11,7 @@ use crate::design::*;
 pub struct Curve {
     pub x_coordinates: Vec<f64>,
     pub y_coordinates: Vec<f64>,
-    pub design: ElementDesign,
+    pub design: CurveDesign,
     pub name: Option<String>,
 }
 
@@ -22,7 +22,7 @@ pub struct Region {
     /// A tuple of y_coordinates.
     /// The two sets will provide bounds for a region.
     pub y_coordinates: (Vec<f64>, Vec<f64>),
-    pub design: ElementDesign,
+    pub design: RegionDesign,
     pub name: Option<String>,
 }
 
@@ -94,27 +94,55 @@ pub fn transparent_plot(
     if let Some(curves) = curves {
         for curve in curves.iter() {
             let color_slot = curve.design.color_slot;
-            let line = match curve.design.color {
-                Color::Green => Line::new().color(PRIMITIVE_GREENS[color_slot]),
-                Color::Blue => Line::new().color(PRIMITIVE_BLUES[color_slot]),
-                Color::Purple => Line::new().color(PRIMITIVE_PURPLES[color_slot]),
-                Color::Grey => Line::new().color(PRIMITIVE_GREYS[color_slot]),
-                Color::Black => Line::new().color(PRIMITIVE_BLACK),
-                Color::White => Line::new().color(PRIMITIVE_WHITE),
+            let trace = match &curve.design.style {
+                Style::Lines(line_emphasis) => {
+                    let line = match curve.design.color {
+                        Color::Green => Line::new().color(PRIMITIVE_GREENS[color_slot]),
+                        Color::Blue => Line::new().color(PRIMITIVE_BLUES[color_slot]),
+                        Color::Purple => Line::new().color(PRIMITIVE_PURPLES[color_slot]),
+                        Color::Grey => Line::new().color(PRIMITIVE_GREYS[color_slot]),
+                        Color::Black => Line::new().color(PRIMITIVE_BLACK),
+                        Color::White => Line::new().color(PRIMITIVE_WHITE),
+                    };
+                    let line = match line_emphasis {
+                        LineEmphasis::Light => line.width(2.0),
+                        LineEmphasis::Heavy => line.width(4.0),
+                        LineEmphasis::Dashed => {
+                            line.width(2.0).dash(plotly::common::DashType::Dash)
+                        }
+                    };
+                    Scatter::new(curve.x_coordinates.clone(), curve.y_coordinates.clone())
+                        .mode(Mode::Lines)
+                        .line(line)
+                        .name(&match curve.name.clone() {
+                            Some(name) => format!(" {} {} {}", "$\\Large{", name, "}$"),
+                            None => "".to_string(),
+                        })
+                        .show_legend(curve.name.is_some())
+                }
+                Style::Markers(marker_emphasis) => {
+                    let marker = match curve.design.color {
+                        Color::Green => Marker::new().color(PRIMITIVE_GREENS[color_slot]),
+                        Color::Blue => Marker::new().color(PRIMITIVE_BLUES[color_slot]),
+                        Color::Purple => Marker::new().color(PRIMITIVE_PURPLES[color_slot]),
+                        Color::Grey => Marker::new().color(PRIMITIVE_GREYS[color_slot]),
+                        Color::Black => Marker::new().color(PRIMITIVE_BLACK),
+                        Color::White => Marker::new().color(PRIMITIVE_WHITE),
+                    };
+                    let marker = match marker_emphasis {
+                        MarkerEmphasis::Light => marker.size(10),
+                        MarkerEmphasis::Heavy => marker.size(20),
+                    };
+                    Scatter::new(curve.x_coordinates.clone(), curve.y_coordinates.clone())
+                        .mode(Mode::Markers)
+                        .marker(marker)
+                        .name(&match curve.name.clone() {
+                            Some(name) => format!(" {} {} {}", "$\\Large{", name, "}$"),
+                            None => "".to_string(),
+                        })
+                        .show_legend(curve.name.is_some())
+                }
             };
-            let line = match curve.design.emphasis {
-                Emphasis::Light => line.width(2.0),
-                Emphasis::Heavy => line.width(4.0),
-                Emphasis::Dashed => line.width(2.0).dash(plotly::common::DashType::Dash),
-            };
-            let trace = Scatter::new(curve.x_coordinates.clone(), curve.y_coordinates.clone())
-                .mode(Mode::Lines)
-                .line(line)
-                .name(&match curve.name.clone() {
-                    Some(name) => format!(" {} {} {}", "$\\Large{", name, "}$"),
-                    None => "".to_string(),
-                })
-                .show_legend(curve.name.is_some());
             plot.add_trace(trace);
         }
     }
@@ -184,7 +212,7 @@ pub fn transparent_plot(
             .legend(
                 Legend::new()
                     .font(Font::new().color(PRIMITIVE_WHITE).size(24))
-                    .x(0.7)
+                    .x(0.8)
                     .y(0.9),
             )
             .font(Font::new().color(PRIMITIVE_WHITE)),
@@ -192,7 +220,7 @@ pub fn transparent_plot(
             .legend(
                 Legend::new()
                     .font(Font::new().color(PRIMITIVE_BLACK).size(24))
-                    .x(0.7)
+                    .x(0.8)
                     .y(0.9),
             )
             .font(Font::new().color(PRIMITIVE_BLACK)),
