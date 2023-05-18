@@ -134,12 +134,7 @@ pub fn parametric_line(t: Vec<f64>, a: f64, b: f64, x_0: f64, y_0: f64) -> (Vec<
     (x, y)
 }
 #[allow(unused)]
-pub fn rmm_cc_payoff(
-    prices: Vec<f64>,
-    strike: f64,
-    sigma: f64,
-    tau: f64,
-) -> (Vec<f64>, Vec<f64>) {
+pub fn rmm_cc_payoff(prices: Vec<f64>, strike: f64, sigma: f64, tau: f64) -> (Vec<f64>, Vec<f64>) {
     let n = prices.len();
     let mut v = Vec::with_capacity(n);
     let d1 = d_one(prices.clone(), strike, sigma, tau);
@@ -152,12 +147,7 @@ pub fn rmm_cc_payoff(
     (prices, v)
 }
 #[allow(unused)]
-pub fn rmm_pp_payoff(
-    prices: Vec<f64>,
-    strike: f64,
-    sigma: f64,
-    rate: f64,
-) -> (Vec<f64>, Vec<f64>) {
+pub fn rmm_pp_payoff(prices: Vec<f64>, strike: f64, sigma: f64, rate: f64) -> (Vec<f64>, Vec<f64>) {
     let n = prices.len();
     let mut v = Vec::with_capacity(n);
     let ell = 2.0 * rate / (2.0 * rate + sigma.powi(2)) * strike;

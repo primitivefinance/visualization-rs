@@ -589,10 +589,11 @@ pub fn pp_and_cc_plotter(display: Display) -> Result<(), Box<dyn Error>> {
     };
     let both_curve = Curve {
         x_coordinates: x_coordinates.clone(),
-        y_coordinates: cc.iter()
-        .zip(pp.iter())
-        .map(|(&x, &y)| x + y)
-        .collect::<Vec<_>>(),
+        y_coordinates: cc
+            .iter()
+            .zip(pp.iter())
+            .map(|(&x, &y)| x + y)
+            .collect::<Vec<_>>(),
         design: CurveDesign {
             color: Color::Purple,
             color_slot: MAIN_COLOR_SLOT,
@@ -607,6 +608,12 @@ pub fn pp_and_cc_plotter(display: Display) -> Result<(), Box<dyn Error>> {
         bounds: (vec![x_start, x_end], vec![0.0, 10.0]),
     };
     //plot
-    transparent_plot(Some(vec![cc_curve, pp_curve, both_curve]), None, axes, title, display);
+    transparent_plot(
+        Some(vec![cc_curve, pp_curve, both_curve]),
+        None,
+        axes,
+        title,
+        display,
+    );
     Ok(())
 }
