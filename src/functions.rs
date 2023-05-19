@@ -170,13 +170,15 @@ pub fn forced_rebalance(
     ratio: f64,
     inv: f64,
 ) -> (Vec<f64>, Vec<f64>) {
-    let n = reserves.len();
-    let mut f = Vec::with_capacity(n);
     let normal = NormalDist::new(0.0, 1.0).unwrap();
-    for i in 0..n {
-        let g = (ratio * reserves[i] - inv) / strike
-            - normal.cdf(normal.inverse_cdf(1.0 - reserves[i]) - sigma * tau.sqrt());
-        f.push(g);
-    }
-    (reserves, f)
+    (
+        reserves.clone(),
+        reserves
+            .iter()
+            .map(|reserve| {
+                (ratio * reserve - inv) / strike
+                    - normal.cdf(normal.inverse_cdf(1.0 - reserve) - sigma * tau.sqrt())
+            })
+            .collect::<Vec<f64>>(),
+    )
 }
