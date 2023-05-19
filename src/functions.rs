@@ -161,3 +161,14 @@ pub fn rmm_pp_payoff(prices: Vec<f64>, strike: f64, sigma: f64, rate: f64) -> (V
     }
     (prices, v)
 }
+#[allow(unused)]
+pub fn forced_rebalance(reserves: Vec<f64>, strike: f64, sigma: f64, tau: f64, ratio: f64, inv: f64) -> (Vec<f64>, Vec<f64>) {
+    let n = reserves.len();
+    let mut f = Vec::with_capacity(n);
+    let normal = NormalDist::new(0.0, 1.0).unwrap();
+    for i in 0..n {
+        let g = (ratio * reserves[i] - inv) / strike - normal.cdf(normal.inverse_cdf(1.0-reserves[i])-sigma*tau.sqrt());
+        f.push(g);
+    }
+    (reserves, f)
+}

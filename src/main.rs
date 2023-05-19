@@ -16,7 +16,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         mode: DisplayMode::Dark,
         show: true,
     };
-    pp_and_cc_plotter(display)?;
+    plot_forced_rebalance(display)?;
 
     Ok(())
 }
