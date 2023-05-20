@@ -12,11 +12,11 @@ use plot::*;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Global visualization variables
     let display = Display {
-        transparent: false,
-        mode: DisplayMode::Light,
+        transparent: true,
+        mode: DisplayMode::Dark,
         show: true,
     };
-    csv_plotter(display)?;
+    plot_forced_rebalance(display)?;
 
     Ok(())
 }

@@ -512,7 +512,7 @@ pub fn cubic_spline_plotter(display: Display) {
 
     transparent_plot(Some(vec![curve, spline_curve]), None, axes, title, display);
 }
-
+#[allow(unused)]
 /// Plot imported csv data for single column csv's
 pub fn csv_plotter(display: Display) -> Result<(), Box<dyn Error>> {
     // Get the file information
@@ -545,6 +545,110 @@ pub fn csv_plotter(display: Display) -> Result<(), Box<dyn Error>> {
         x_label: String::from("\\text{Trade Number}"),
         y_label: String::from("\\text{Prices}"),
         bounds: (vec![0.0, t_end], vec![0.95, 1.05]),
+    };
+    //plot
+    transparent_plot(Some(vec![curve]), None, axes, title, display);
+    Ok(())
+}
+#[allow(unused)]
+/// Plot for Perpetual Put and Covered Call
+pub fn pp_and_cc_plotter(display: Display) -> Result<(), Box<dyn Error>> {
+    let number_of_points = 1000;
+    let title = "\\text{Perpetual Put and Covered Call}".to_string();
+
+    let x_start = 0.1;
+    let x_end = 15.0;
+    let x_coordinates = linspace(x_start, x_end, number_of_points).collect::<Vec<f64>>(); // Parameter for curves
+
+    let strike = 7.0;
+    let sigma = 0.5;
+    let rate = 0.04;
+    let tau = 0.1;
+    // generate curves
+    let cc = rmm_cc_payoff(x_coordinates.clone(), strike, sigma, tau).1;
+    let pp = rmm_pp_payoff(x_coordinates.clone(), strike, sigma, tau).1;
+    let cc_curve = Curve {
+        x_coordinates: x_coordinates.clone(),
+        y_coordinates: cc.clone(),
+        design: CurveDesign {
+            color: Color::Green,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Lines(LineEmphasis::Light),
+        },
+        name: Some(String::from("\\text{Covered Call}")),
+    };
+    let pp_curve = Curve {
+        x_coordinates: x_coordinates.clone(),
+        y_coordinates: pp.clone(),
+        design: CurveDesign {
+            color: Color::Blue,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Lines(LineEmphasis::Light),
+        },
+        name: Some(String::from("\\text{Perpetual Put}")),
+    };
+    let both_curve = Curve {
+        x_coordinates: x_coordinates.clone(),
+        y_coordinates: cc
+            .iter()
+            .zip(pp.iter())
+            .map(|(&x, &y)| x + y)
+            .collect::<Vec<_>>(),
+        design: CurveDesign {
+            color: Color::Purple,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Lines(LineEmphasis::Light),
+        },
+        name: Some(String::from("\\text{Covered Call + Perpetual Put}")),
+    };
+    // Build the plot's axes
+    let axes = Axes {
+        x_label: String::from("S"),
+        y_label: String::from("V(S)"),
+        bounds: (vec![x_start, x_end], vec![0.0, 10.0]),
+    };
+    //plot
+    transparent_plot(
+        Some(vec![cc_curve, pp_curve, both_curve]),
+        None,
+        axes,
+        title,
+        display,
+    );
+    Ok(())
+}
+#[allow(unused)]
+/// Plot for Forced-Re-balance on RMM-CC
+pub fn plot_forced_rebalance(display: Display) -> Result<(), Box<dyn Error>> {
+    let number_of_points = 1000;
+    let x_start = 0.001;
+    let x_end = 0.999;
+    let x = linspace(x_start, x_end, number_of_points).collect::<Vec<f64>>(); // Parameter for curves
+
+    let strike = 5.0;
+    let sigma = 0.5;
+    let ratio = 1.5;
+    let tau = 0.8;
+    let inv = 0.0;
+
+    let (reserves, value) = forced_rebalance(x, strike, sigma, tau, ratio, inv);
+    // Build curve
+    let curve = Curve {
+        x_coordinates: reserves,
+        y_coordinates: value,
+        design: CurveDesign {
+            color: Color::Purple,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Lines(LineEmphasis::Light),
+        },
+        name: Some(String::from("\\text{Forced Rebalance}")),
+    };
+    // build plot axes and title
+    let title = "\\text{Forced Rebalance}".to_string();
+    let axes = Axes {
+        x_label: String::from("R_x"),
+        y_label: String::from("V(R_x)"),
+        bounds: (vec![0.0, 1.0], vec![-1.0, 0.6]),
     };
     //plot
     transparent_plot(Some(vec![curve]), None, axes, title, display);
