@@ -1,3 +1,5 @@
+//! A module for plotting curves and regions.
+
 #![warn(missing_docs)]
 use plotly::{
     color::NamedColor,
@@ -8,13 +10,19 @@ use plotly::{
 
 use crate::design::*;
 
+/// A struct to hold the data for a curve.
 pub struct Curve {
+    /// A vector of x_coordinates.
     pub x_coordinates: Vec<f64>,
+    /// A vector of y_coordinates.
     pub y_coordinates: Vec<f64>,
+    /// A struct to hold the design of the curve.
     pub design: CurveDesign,
+    /// An optional name for the curve that appears in the legend.
     pub name: Option<String>,
 }
 
+/// A struct to hold the data for a filled in region.
 pub struct Region {
     /// A tuple of x_coordinates.
     /// The two sets will provide bounds for a region.
@@ -22,22 +30,33 @@ pub struct Region {
     /// A tuple of y_coordinates.
     /// The two sets will provide bounds for a region.
     pub y_coordinates: (Vec<f64>, Vec<f64>),
+    /// A struct to hold the design of the region.
     pub design: RegionDesign,
+    /// An optional name for the region that appears in the legend.
     pub name: Option<String>,
 }
 
+/// A struct to hold the data for a the axes around curves and regions.
 pub struct Axes {
+    /// A string for the title of the x-axis.
     pub x_label: String,
+    /// A string for the title of the y-axis.
     pub y_label: String,
+    /// A tuple for the x and y limits of the plot.
     pub bounds: (Vec<f64>, Vec<f64>),
 }
 
+/// A struct that holds high level visualization data for the plot.
 pub struct Display {
+    /// A boolean to determine if the plot background should be transparent.
     pub transparent: bool,
+    /// An enum to determine if we are using light or dark mode.
     pub mode: DisplayMode,
+    /// A boolean to determine if the plot should be shown or just generated and saved.
     pub show: bool,
 }
 
+/// The main plotting function for curves and regions.
 pub fn transparent_plot(
     curves: Option<Vec<Curve>>,
     regions: Option<Vec<Region>>,
