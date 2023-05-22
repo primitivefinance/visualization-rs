@@ -6,10 +6,8 @@ use itertools_num::linspace;
 use mentat::MonotonicCubicSpline;
 use statrs::consts;
 
-use crate::design::*;
-use crate::file_handler::read_column_from_csv;
-use crate::functions::*;
-use crate::plot::*;
+use visualize::{design::*, file_handler::*, functions::*, plot::*};
+
 #[allow(unused)]
 /// Plot of different types of approximations to the Gaussian PDF
 pub fn compare_approximation_types(display: Display) {
@@ -588,7 +586,7 @@ pub fn pp_and_cc_plotter(display: Display) -> Result<(), Box<dyn Error>> {
         name: Some(String::from("\\text{Perpetual Put}")),
     };
     let both_curve = Curve {
-        x_coordinates: x_coordinates.clone(),
+        x_coordinates,
         y_coordinates: cc
             .iter()
             .zip(pp.iter())
