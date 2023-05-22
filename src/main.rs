@@ -1,13 +1,7 @@
-mod design;
 mod examples;
-mod file_handler;
-mod functions;
-mod plot;
-use design::DisplayMode;
 use examples::*;
 #[allow(unused)]
-use file_handler::*;
-use plot::*;
+use visualize::{design::DisplayMode, file_handler::*, plot::*};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Global visualization variables

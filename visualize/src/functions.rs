@@ -148,18 +148,20 @@ pub fn rmm_cc_payoff(prices: Vec<f64>, strike: f64, sigma: f64, tau: f64) -> (Ve
 }
 #[allow(unused)]
 pub fn rmm_pp_payoff(prices: Vec<f64>, strike: f64, sigma: f64, rate: f64) -> (Vec<f64>, Vec<f64>) {
-    let n = prices.len();
-    let mut v = Vec::with_capacity(n);
     let ell = 2.0 * rate / (2.0 * rate + sigma.powi(2)) * strike;
-    for i in 0..n {
-        if prices[i] <= ell {
-            v.push(strike - prices[i])
-        } else {
-            let g = (strike - ell) * (ell / prices[i]).powf(2.0 * rate / sigma.powi(2));
-            v.push(g);
-        }
-    }
-    (prices, v)
+    (
+        prices.clone(),
+        prices
+            .iter()
+            .map(|price| {
+                if price <= &ell {
+                    strike - price
+                } else {
+                    (strike - ell) * (ell / price).powf(2.0 * rate / sigma.powi(2))
+                }
+            })
+            .collect::<Vec<f64>>(),
+    )
 }
 #[allow(unused)]
 pub fn forced_rebalance(
