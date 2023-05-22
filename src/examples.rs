@@ -630,7 +630,8 @@ pub fn forced_rebalance(display: Display) -> Result<(), Box<dyn Error>> {
     let tau = 0.8;
     let inv = 0.0;
 
-    let (reserves, value) = functions::forced_rebalance(x, strike, sigma, tau, ratio, inv);
+    let (reserves, value) =
+        visualize::functions::forced_rebalance(x, strike, sigma, tau, ratio, inv);
     // Build curve
     let curve = Curve {
         x_coordinates: reserves,
@@ -662,8 +663,7 @@ pub fn simulation_price_paths(display: Display) -> Result<(), Box<dyn Error>> {
     let column_name = "liquid_exchange_prices";
 
     // Import the data from the csv file
-    let liquid_exchange_price_data =
-        read_column_from_csv(file_path, "liquid_exchange_prices")?;
+    let liquid_exchange_price_data = read_column_from_csv(file_path, "liquid_exchange_prices")?;
     let uniswap_price_data = read_column_from_csv(file_path, "uniswap_prices")?;
     // println!("{:?}", liquid_exchange_price_data.len());
     let trade_number = linspace(
@@ -723,8 +723,7 @@ pub fn simulation_fee_growth(display: Display) -> Result<(), Box<dyn Error>> {
     let column_name = "liquid_exchange_prices";
 
     // Import the data from the csv file
-    let uniswap_x_reserves =
-        read_column_from_csv(file_path, "uniswap_x_reserves")?;
+    let uniswap_x_reserves = read_column_from_csv(file_path, "uniswap_x_reserves")?;
     let uniswap_y_reserves = read_column_from_csv(file_path, "uniswap_y_reserves")?;
     // println!("{:?}", liquid_exchange_price_data.len());
     let trade_number = linspace(
@@ -769,12 +768,12 @@ pub fn simulation_fee_growth(display: Display) -> Result<(), Box<dyn Error>> {
     let liquidity = uniswap_x_reserves
         .iter()
         .zip(uniswap_y_reserves.iter())
-        .map(|(x, y)| x * y/1e3)
+        .map(|(x, y)| x * y / 1e3)
         .collect::<Vec<f64>>();
 
     let liquidity_curve = Curve {
         x_coordinates: trade_number,
-        y_coordinates: liquidity.clone(),
+        y_coordinates: liquidity,
         design: CurveDesign {
             color: Color::Green,
             color_slot: MAIN_COLOR_SLOT,
@@ -784,7 +783,11 @@ pub fn simulation_fee_growth(display: Display) -> Result<(), Box<dyn Error>> {
     };
 
     transparent_plot(
-        Some(vec![uniswap_x_reserves_curve, uniswap_y_reserves_curve, liquidity_curve]),
+        Some(vec![
+            uniswap_x_reserves_curve,
+            uniswap_y_reserves_curve,
+            liquidity_curve,
+        ]),
         None,
         axes,
         title,
