@@ -12,11 +12,11 @@ use plot::*;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Global visualization variables
     let display = Display {
-        transparent: true,
-        mode: DisplayMode::Dark,
+        transparent: false,
+        mode: DisplayMode::Light,
         show: true,
     };
-    plot_forced_rebalance(display)?;
+    simulation_fee_growth(display)?;
 
     Ok(())
 }

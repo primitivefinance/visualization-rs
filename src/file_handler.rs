@@ -14,6 +14,7 @@ pub fn read_column_from_csv(
 ) -> Result<Vec<f64>, Box<dyn Error>> {
     let df = CsvReader::from_path(file_path)?
         .infer_schema(None)
+        .with_ignore_errors(true)
         .has_header(true)
         .finish()?;
     let column_as_f64 = df

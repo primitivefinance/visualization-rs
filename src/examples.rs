@@ -8,6 +8,7 @@ use statrs::consts;
 
 use crate::design::*;
 use crate::file_handler::read_column_from_csv;
+use crate::functions;
 use crate::functions::*;
 use crate::plot::*;
 #[allow(unused)]
@@ -617,9 +618,10 @@ pub fn pp_and_cc_plotter(display: Display) -> Result<(), Box<dyn Error>> {
     );
     Ok(())
 }
+
 #[allow(unused)]
 /// Plot for Forced-Re-balance on RMM-CC
-pub fn plot_forced_rebalance(display: Display) -> Result<(), Box<dyn Error>> {
+pub fn forced_rebalance(display: Display) -> Result<(), Box<dyn Error>> {
     let number_of_points = 1000;
     let x_start = 0.001;
     let x_end = 0.999;
@@ -631,7 +633,7 @@ pub fn plot_forced_rebalance(display: Display) -> Result<(), Box<dyn Error>> {
     let tau = 0.8;
     let inv = 0.0;
 
-    let (reserves, value) = forced_rebalance(x, strike, sigma, tau, ratio, inv);
+    let (reserves, value) = functions::forced_rebalance(x, strike, sigma, tau, ratio, inv);
     // Build curve
     let curve = Curve {
         x_coordinates: reserves,
@@ -652,5 +654,144 @@ pub fn plot_forced_rebalance(display: Display) -> Result<(), Box<dyn Error>> {
     };
     //plot
     transparent_plot(Some(vec![curve]), None, axes, title, display);
+    Ok(())
+}
+
+#[allow(unused)]
+/// Plot for Forced-Re-balance on RMM-CC
+pub fn simulation_price_paths(display: Display) -> Result<(), Box<dyn Error>> {
+    // Get the file information
+    let file_path = "uniswap_0.10000000000000002_0.csv";
+    let column_name = "liquid_exchange_prices";
+
+    // Import the data from the csv file
+    let liquid_exchange_price_data =
+        read_column_from_csv(file_path, "liquid_exchange_prices")?;
+    let uniswap_price_data = read_column_from_csv(file_path, "uniswap_prices")?;
+    // println!("{:?}", liquid_exchange_price_data.len());
+    let trade_number = linspace(
+        0.0,
+        liquid_exchange_price_data.len() as f64,
+        liquid_exchange_price_data.len(),
+    )
+    .collect::<Vec<f64>>();
+
+    let liquid_exchange_price_curve = Curve {
+        x_coordinates: trade_number.clone(),
+        y_coordinates: liquid_exchange_price_data.clone(),
+        design: CurveDesign {
+            color: Color::Green,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Lines(LineEmphasis::Light),
+        },
+        name: Some("\\text{Liquid Exchange Price}".to_string()),
+    };
+
+    let uniswap_price_curve = Curve {
+        x_coordinates: trade_number,
+        y_coordinates: uniswap_price_data,
+        design: CurveDesign {
+            color: Color::Purple,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Lines(LineEmphasis::Light),
+        },
+        name: Some("\\text{Uniswap Price}".to_string()),
+    };
+
+    let title = "\\text{Price Data}".to_string();
+    let axes = Axes {
+        x_label: "\\text{Trade Number}".to_string(),
+        y_label: "\\text{Price}".to_string(),
+        bounds: (
+            vec![0.0, liquid_exchange_price_data.len() as f64],
+            vec![0.95, 1.05],
+        ),
+    };
+
+    transparent_plot(
+        Some(vec![liquid_exchange_price_curve, uniswap_price_curve]),
+        None,
+        axes,
+        title,
+        display,
+    );
+    Ok(())
+}
+
+#[allow(unused)]
+/// Plot for Forced-Re-balance on RMM-CC
+pub fn simulation_fee_growth(display: Display) -> Result<(), Box<dyn Error>> {
+    // Get the file information
+    let file_path = "uniswap_0.10000000000000002_0.csv";
+    let column_name = "liquid_exchange_prices";
+
+    // Import the data from the csv file
+    let uniswap_x_reserves =
+        read_column_from_csv(file_path, "uniswap_x_reserves")?;
+    let uniswap_y_reserves = read_column_from_csv(file_path, "uniswap_y_reserves")?;
+    // println!("{:?}", liquid_exchange_price_data.len());
+    let trade_number = linspace(
+        0.0,
+        uniswap_x_reserves.len() as f64,
+        uniswap_x_reserves.len(),
+    )
+    .collect::<Vec<f64>>();
+
+    let uniswap_x_reserves_curve = Curve {
+        x_coordinates: trade_number.clone(),
+        y_coordinates: uniswap_x_reserves.clone(),
+        design: CurveDesign {
+            color: Color::Blue,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Lines(LineEmphasis::Light),
+        },
+        name: Some("\\text{X Reserves}".to_string()),
+    };
+
+    let uniswap_y_reserves_curve = Curve {
+        x_coordinates: trade_number.clone(),
+        y_coordinates: uniswap_y_reserves.clone(),
+        design: CurveDesign {
+            color: Color::Purple,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Lines(LineEmphasis::Light),
+        },
+        name: Some("\\text{Y Reserves}".to_string()),
+    };
+
+    let title = "\\text{Liquidity and Reserves}".to_string();
+    let axes = Axes {
+        x_label: "\\text{Trade Number}".to_string(),
+        y_label: "\\text{Reserves}".to_string(),
+        bounds: (
+            vec![0.0, uniswap_x_reserves.len() as f64],
+            vec![990.0, 1020.0],
+        ),
+    };
+
+    let liquidity = uniswap_x_reserves
+        .iter()
+        .zip(uniswap_y_reserves.iter())
+        .map(|(x, y)| x * y/1e3)
+        .collect::<Vec<f64>>();
+
+    let liquidity_curve = Curve {
+        x_coordinates: trade_number,
+        y_coordinates: liquidity.clone(),
+        design: CurveDesign {
+            color: Color::Green,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Lines(LineEmphasis::Heavy),
+        },
+        name: Some("\\text{Rescaled Liquidity}".to_string()),
+    };
+
+    transparent_plot(
+        Some(vec![uniswap_x_reserves_curve, uniswap_y_reserves_curve, liquidity_curve]),
+        None,
+        axes,
+        title,
+        display,
+    );
     Ok(())
 }
