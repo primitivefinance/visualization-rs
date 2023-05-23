@@ -6,11 +6,11 @@ use visualize::{design::DisplayMode, file_handler::*, plot::*};
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Global visualization variables
     let display = Display {
-        transparent: true,
+        transparent: false,
         mode: DisplayMode::Light,
         show: true,
     };
-    plot_forced_rebalance(display)?;
+    simulation_fee_growth(display)?;
 
     Ok(())
 }

@@ -5,3 +5,4 @@ Cargo.lock
 *.DS_Store
 *.csv
 !test_prices.csv
+!uniswap_0.10000000000000002_0.csv

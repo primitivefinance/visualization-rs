@@ -182,7 +182,7 @@ pub fn transparent_plot(
         .ticks(plotly::layout::TicksDirection::Outside);
     let y_label = format!("{} {} {}", "$\\LARGE{", axes.y_label, "}$");
     let y_axis = Axis::new()
-        .title(Title::new(&y_label).font(Font::new().size(48)))
+        .title(Title::new(&y_label).font(Font::new().size(60)))
         .show_grid(true)
         .grid_color(PRIMITIVE_GREYS[MAIN_COLOR_SLOT])
         .zero_line(false)
@@ -211,7 +211,7 @@ pub fn transparent_plot(
         .y_axis(y_axis)
         .width(1600)
         .height(900)
-        .margin(Margin::new().bottom(100).left(160).top(100).right(100));
+        .margin(Margin::new().bottom(100).left(180).top(100).right(100));
     let layout = match display.transparent {
         true => layout
             .plot_background_color("rgba(0,0,0,0)")
