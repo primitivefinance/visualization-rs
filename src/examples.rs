@@ -72,7 +72,7 @@ pub fn compare_approximation_types(display: Display) {
         None,
         axes,
         title,
-        display,
+        display, None
     );
 }
 #[allow(unused)]
@@ -135,7 +135,7 @@ pub fn polynomial_approximations(display: Display) {
         bounds: (vec![t_start, t_end], vec![-0.5, 1.5]),
     };
     // plot
-    transparent_plot(Some(curves), None, axes, title, display);
+    transparent_plot(Some(curves), None, axes, title, display, None);
 }
 #[allow(unused)]
 /// Plot RMM trading curve for multiple taus from a list of prices
@@ -174,7 +174,7 @@ pub fn rmm_trading_curve_multiple_taus(display: Display) {
         bounds: (vec![0.0, 1.0], vec![0.0, 3.0]),
     };
     // plot
-    transparent_plot(Some(curves), None, axes, title, display);
+    transparent_plot(Some(curves), None, axes, title, display, None);
 }
 #[allow(unused)]
 /// Plot RMM trading curve for multiple rescalings
@@ -223,7 +223,7 @@ pub fn rmm_trading_curve_rescaling(display: Display) {
         bounds: (vec![0.0, 1.0], vec![0.0, 3.0]),
     };
     // plot
-    transparent_plot(Some(curves), None, axes, title, display);
+    transparent_plot(Some(curves), None, axes, title, display, None);
 }
 
 /// Plot RMM liquidity distribution for multiple taus
@@ -271,7 +271,7 @@ pub fn rmm_liquidity_distribution(display: Display) {
         bounds: (vec![price_start, price_end], vec![0.0, 1.0]),
     };
     // plot
-    transparent_plot(Some(curves), None, axes, title, display);
+    transparent_plot(Some(curves), None, axes, title, display, None);
 }
 
 /// Plot RMM portfolio value for multiple taus
@@ -340,7 +340,7 @@ pub fn rmm_portfolio_value(display: Display) {
         bounds: (vec![price_start, price_end], vec![0.0, 5.0]),
     };
     //plot
-    transparent_plot(Some(curves), None, axes, title, display);
+    transparent_plot(Some(curves), None, axes, title, display, None);
 }
 
 /// Leverage zones plot with S^2 pvf
@@ -408,7 +408,7 @@ pub fn leverage_zones_with_pvf(display: Display) {
         Some(vec![over_levered, under_levered]),
         axes,
         title,
-        display,
+        display, None
     );
 }
 #[allow(unused)]
@@ -452,7 +452,7 @@ pub fn brownian_bridge_plotter(display: Display, start_price: f64, end_price: f6
         bounds: (vec![0.0, 1.0], vec![0.0, 3000.0]),
     };
     //plot
-    transparent_plot(Some(vec![curve1, curve2]), None, axes, title, display);
+    transparent_plot(Some(vec![curve1, curve2]), None, axes, title, display, None);
 }
 
 #[allow(unused)]
@@ -508,7 +508,7 @@ pub fn cubic_spline_plotter(display: Display) {
         bounds: (vec![-3.0, 3.0], vec![0.0, 1.0]),
     };
 
-    transparent_plot(Some(vec![curve, spline_curve]), None, axes, title, display);
+    transparent_plot(Some(vec![curve, spline_curve]), None, axes, title, display, None);
 }
 #[allow(unused)]
 /// Plot imported csv data for single column csv's
@@ -545,7 +545,7 @@ pub fn csv_plotter(display: Display) -> Result<(), Box<dyn Error>> {
         bounds: (vec![0.0, t_end], vec![0.95, 1.05]),
     };
     //plot
-    transparent_plot(Some(vec![curve]), None, axes, title, display);
+    transparent_plot(Some(vec![curve]), None, axes, title, display, None);
     Ok(())
 }
 #[allow(unused)]
@@ -611,7 +611,7 @@ pub fn pp_and_cc_plotter(display: Display) -> Result<(), Box<dyn Error>> {
         None,
         axes,
         title,
-        display,
+        display, None
     );
     Ok(())
 }
@@ -651,7 +651,7 @@ pub fn forced_rebalance(display: Display) -> Result<(), Box<dyn Error>> {
         bounds: (vec![0.0, 1.0], vec![-1.0, 0.6]),
     };
     //plot
-    transparent_plot(Some(vec![curve]), None, axes, title, display);
+    transparent_plot(Some(vec![curve]), None, axes, title, display, None);
     Ok(())
 }
 
@@ -710,7 +710,7 @@ pub fn simulation_price_paths(display: Display) -> Result<(), Box<dyn Error>> {
         None,
         axes,
         title,
-        display,
+        display, None
     );
     Ok(())
 }
@@ -791,7 +791,7 @@ pub fn simulation_fee_growth(display: Display) -> Result<(), Box<dyn Error>> {
         None,
         axes,
         title,
-        display,
+        display, None
     );
     Ok(())
 }

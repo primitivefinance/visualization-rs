@@ -10,7 +10,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         mode: DisplayMode::Light,
         show: true,
     };
-    simulation_fee_growth(display)?;
+    rmm_liquidity_distribution(display);
 
     Ok(())
 }

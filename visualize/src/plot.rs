@@ -63,6 +63,7 @@ pub fn transparent_plot(
     axes: Axes,
     title: String,
     display: Display,
+    file_name: Option<String>,
 ) {
     let mut plot = Plot::new();
     // TODO: Below should be put into a helper function
@@ -246,7 +247,11 @@ pub fn transparent_plot(
     };
 
     plot.set_layout(layout);
-    plot.write_html(title.as_str().to_owned() + ".html");
+    let file = match file_name {
+        Some(file_name) => file_name,
+        None => "plot.html".to_string(),
+    };
+    plot.write_html(file);
     if display.show {
         plot.show();
     }
