@@ -46,6 +46,7 @@ pub struct Axes {
     pub bounds: (Vec<f64>, Vec<f64>),
 }
 
+#[derive(Debug, Copy, Clone)]
 /// A struct that holds high level visualization data for the plot.
 pub struct Display {
     /// A boolean to determine if the plot background should be transparent.

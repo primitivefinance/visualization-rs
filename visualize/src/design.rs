@@ -1,11 +1,11 @@
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 #[allow(unused)]
 pub enum DisplayMode {
     Light,
     Dark,
 }
 // TODO: Use DisplayMode for light mode/dark mode. For light mode, we will also want to consider decreasing from the top when using a list of colors since that will be darker
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 #[allow(unused)]
 pub enum Color {
     Green,
