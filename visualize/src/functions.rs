@@ -184,3 +184,14 @@ pub fn forced_rebalance(
             .collect::<Vec<f64>>(),
     )
 }
+
+#[allow(unused)]
+pub fn g3m_trading_curve(x_values: Vec<f64>, w: f64, l: f64) -> (Vec<f64>, Vec<f64>) {
+    let n = x_values.len();
+    let (x, mut y) = (x_values, Vec::with_capacity(n));
+    for i in 0..n {
+        let pow = 1_f64 / (1_f64 - w);
+        y.push((l / x[i].powf(w)).powf(pow));
+    }
+    (x, y)
+}

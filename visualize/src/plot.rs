@@ -210,7 +210,7 @@ pub fn transparent_plot(
         .title(plotly::common::Title::new(title.as_str()))
         .x_axis(x_axis)
         .y_axis(y_axis)
-        .width(1600)
+        .width(1200)
         .height(900)
         .margin(Margin::new().bottom(100).left(180).top(100).right(100));
     let layout = match display.transparent {
@@ -232,16 +232,16 @@ pub fn transparent_plot(
             .legend(
                 Legend::new()
                     .font(Font::new().color(PRIMITIVE_WHITE).size(24))
-                    .x(0.8)
-                    .y(0.9),
+                    .x_anchor(plotly::common::Anchor::Auto)
+                    .y_anchor(plotly::common::Anchor::Auto),
             )
             .font(Font::new().color(PRIMITIVE_WHITE)),
         DisplayMode::Light => layout
             .legend(
                 Legend::new()
                     .font(Font::new().color(PRIMITIVE_BLACK).size(24))
-                    .x(0.8)
-                    .y(0.9),
+                    .x_anchor(plotly::common::Anchor::Auto)
+                    .y_anchor(plotly::common::Anchor::Auto),
             )
             .font(Font::new().color(PRIMITIVE_BLACK)),
     };

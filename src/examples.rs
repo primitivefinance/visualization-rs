@@ -1,6 +1,6 @@
 #![warn(missing_docs)]
-use std::error::Error;
 use std::ops::Div;
+use std::{error::Error, f32::consts::TAU};
 
 use itertools_num::linspace;
 use mentat::MonotonicCubicSpline;
@@ -231,12 +231,12 @@ pub fn rmm_trading_curve_rescaling(display: Display) {
 pub fn rmm_liquidity_distribution(display: Display) {
     let title = String::from("$\\text{RMM Liquidity Distribution}$");
     // Define the relavant RMM-CC parameters with multiple taus
-    let strike = 3_f64;
+    let strike = 1_f64;
     let sigma = 0.5_f64;
-    let taus: Vec<f64> = vec![1.0_f64, 0.5_f64, 0.3_f64, 0.2_f64, 0.1_f64];
-    // Create a list of prices that we will compute the reserves from
+    let taus: Vec<f64> = vec![1.0]; //vec![2.0_f64, 1_f64, 0.5_f64, 0.2_f64, 0.1_f64];
+                                    // Create a list of prices that we will compute the reserves from
     let price_start = 0.0_f64;
-    let price_end = 10.0_f64;
+    let price_end = 5.0_f64;
     let number_of_prices = 1000;
     let prices = linspace(price_start, price_end, number_of_prices).collect::<Vec<f64>>();
     // Build the curves
@@ -257,18 +257,21 @@ pub fn rmm_liquidity_distribution(display: Display) {
             y_coordinates: after_divide,
             design: CurveDesign {
                 color: Color::Green,
-                color_slot: index,
-                style: Style::Lines(LineEmphasis::Light),
+                color_slot: MAIN_COLOR_SLOT,
+                style: Style::Lines(LineEmphasis::Heavy),
             },
-            name: Some(format!("{} {}", "\\tau=", tau)),
+            name: Some(format!(
+                "{} {} {} {} {} {} {}",
+                "L = 1", "\\quad K = ", strike, "\\quad \\sigma = ", sigma, "\\quad \\tau = ", tau
+            )),
         };
         curves.push(curve);
     }
     // Build the plot's axes
     let axes = Axes {
-        x_label: String::from("S"),
-        y_label: String::from("L(S)"),
-        bounds: (vec![price_start, price_end], vec![0.0, 1.0]),
+        x_label: String::from("\\textrm{Price, }S"),
+        y_label: String::from("\\textrm{Depth}"),
+        bounds: (vec![price_start, price_end], vec![0.0, 1.5]),
     };
     // plot
     transparent_plot(Some(curves), None, axes, title, display, None);
@@ -657,7 +660,7 @@ pub fn forced_rebalance(display: Display) -> Result<(), Box<dyn Error>> {
 
 #[allow(unused)]
 /// Plot for Forced-Re-balance on RMM-CC
-pub fn simulation_price_paths(display: Display) -> Result<(), Box<dyn Error>> {
+pub fn simulation_arbitrage(display: Display) -> Result<(), Box<dyn Error>> {
     // Get the file information
     let file_path = "uniswap_0.10000000000000002_0.csv";
     let column_name = "liquid_exchange_prices";
@@ -794,4 +797,355 @@ pub fn simulation_fee_growth(display: Display) -> Result<(), Box<dyn Error>> {
         display, None
     );
     Ok(())
+}
+
+pub fn simulation_price_paths(display: Display) -> Result<(), Box<dyn Error>> {
+    // TODO: this file path is for the configuration file which will give information about how the files are named in the output directory.
+    let output_path = "output";
+    let output_file_names = "uniswap";
+    let volatility = 0.08;
+    let mut curves = vec![];
+    for label in 0..10 {
+        let output_file = format!(
+            "{}/{}_{}_{}.csv",
+            output_path, output_file_names, volatility, label
+        );
+        let liquid_exchange_price_data =
+            read_column_from_csv(output_file.as_str(), "liquid_exchange_prices")?;
+        let uniswap_price_data = read_column_from_csv(output_file.as_str(), "uniswap_prices")?;
+
+        let trade_number = linspace(
+            0.0,
+            liquid_exchange_price_data.len() as f64,
+            liquid_exchange_price_data.len() - 1,
+        )
+        .collect::<Vec<f64>>();
+
+        let liquid_exchange_price_curve = Curve {
+            x_coordinates: trade_number.clone(),
+            y_coordinates: liquid_exchange_price_data.clone()
+                [..liquid_exchange_price_data.len() - 1]
+                .to_vec(),
+            design: CurveDesign {
+                color: Color::Green,
+                color_slot: label,
+                style: Style::Lines(LineEmphasis::Heavy),
+            },
+            name: None,
+        };
+
+        // let uniswap_price_curve = Curve {
+        //     x_coordinates: trade_number,
+        //     y_coordinates: uniswap_price_data[..uniswap_price_data.len()-1].to_vec(),
+        //     design: CurveDesign {
+        //         color: Color::Purple,
+        //         color_slot: label,
+        //         style: Style::Lines(LineEmphasis::Light),
+        //     },
+        //     name: None,
+        // };
+
+        curves.push(liquid_exchange_price_curve);
+        // curves.push(uniswap_price_curve);
+    }
+
+    let title = "\\text{Price Data}".to_string();
+    let axes = Axes {
+        x_label: "\\text{Trade Number}".to_string(),
+        y_label: "\\text{Price}".to_string(),
+        bounds: (
+            vec![0.0, curves[0].x_coordinates.len() as f64],
+            vec![0.8, 1.6],
+        ),
+    };
+    let display = Display {
+        transparent: true,
+        mode: DisplayMode::Dark,
+        show: true,
+    };
+
+    transparent_plot(Some(curves), None, axes, title, display);
+
+    Ok(())
+}
+
+#[allow(unused)]
+/// Plot RMM trading curve for multiple rescalings
+pub fn rmm_dfmm(display: Display) {
+    let title = format!("{}", "$\\text{Dynamic Function Market Maker}$");
+
+    // Define the range of prices
+    let price_start = 0.0_f64;
+    let price_end = 100.0_f64;
+    let number_of_prices = 1000;
+    let prices = linspace(price_start, price_end, number_of_prices).collect::<Vec<f64>>();
+    // Choose the rescaling factors and build the curves
+    let mut curves = vec![];
+
+    // First curve
+    let l = 1.0;
+    let strike = 1_f64;
+    let sigma = 0.5_f64;
+    let tau = 2.0;
+    let (x_scale, y_scale) = rmm_trading_curve(prices.clone(), strike, sigma, tau, Some(l));
+    let curve = Curve {
+        x_coordinates: x_scale,
+        y_coordinates: y_scale,
+        design: CurveDesign {
+            color: Color::Green,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Lines(LineEmphasis::Heavy),
+        },
+        name: Some(format!(
+            "{} {} {} {} {} {} {} {}",
+            "L = ", l, "\\quad K = ", strike, "\\quad \\sigma = ", sigma, "\\quad \\tau = ", tau
+        )),
+    };
+    curves.push(curve);
+
+    // Second curve
+    let l = 0.92;
+    let strike = 1.25_f64;
+    let sigma = 0.5_f64;
+    let tau = 2.0;
+    let (x_scale, y_scale) = rmm_trading_curve(prices.clone(), strike, sigma, tau, Some(l));
+    let curve = Curve {
+        x_coordinates: x_scale,
+        y_coordinates: y_scale,
+        design: CurveDesign {
+            color: Color::Purple,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Lines(LineEmphasis::Heavy),
+        },
+        name: Some(format!(
+            "{} {} {} {} {} {} {} {}",
+            "L = ", l, "\\quad K = ", strike, "\\quad \\sigma = ", sigma, "\\quad \\tau = ", tau
+        )),
+    };
+    curves.push(curve);
+
+    // Third curve
+    let l = 1.72;
+    let strike = 1.25_f64;
+    let sigma = 1.25_f64;
+    let tau = 2.0;
+    let (x_scale, y_scale) = rmm_trading_curve(prices.clone(), strike, sigma, tau, Some(l));
+    let curve = Curve {
+        x_coordinates: x_scale,
+        y_coordinates: y_scale,
+        design: CurveDesign {
+            color: Color::Blue,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Lines(LineEmphasis::Heavy),
+        },
+        name: Some(format!(
+            "{} {} {} {} {} {} {} {}",
+            "L = ", l, "\\quad K = ", strike, "\\quad \\sigma = ", sigma, "\\quad \\tau = ", tau
+        )),
+    };
+    curves.push(curve);
+
+    // Reserves
+    let rx = 0.5;
+    let ry = 0.24;
+    let point = Curve {
+        x_coordinates: vec![rx],
+        y_coordinates: vec![ry],
+        design: CurveDesign {
+            color: Color::Black,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Markers(MarkerEmphasis::Heavy),
+        },
+        name: Some(format!("{} {} {} {}", "R_X = ", rx, ", R_Y = ", ry)),
+    };
+    curves.push(point);
+
+    // Build the plot's axes
+    let axes = Axes {
+        x_label: String::from("R_X"),
+        y_label: String::from("R_Y"),
+        bounds: (vec![0.0, 2.0], vec![0.0, 2.0]),
+    };
+    // plot
+    transparent_plot(Some(curves), None, axes, title, display);
+}
+
+#[allow(unused)]
+/// Plot RMM trading curve for multiple rescalings
+pub fn g3m_dfmm(display: Display) {
+    let title = format!("{}", "$\\text{Dynamic Function Market Maker}$");
+
+    // Define the range of x values
+    let x_start = 0.01_f64;
+    let x_end = 5.0_f64;
+    let number_of_x_values = 10000;
+    let x_values = linspace(x_start, x_end, number_of_x_values).collect::<Vec<f64>>();
+    // println!("x-values: {:?}", x_values);
+
+    let mut curves = vec![];
+
+    // First curve
+    let l = 1.0;
+    let w = 0.2;
+    let (x, y) = g3m_trading_curve(x_values.clone(), w, l);
+    let curve = Curve {
+        x_coordinates: x,
+        y_coordinates: y,
+        design: CurveDesign {
+            color: Color::Green,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Lines(LineEmphasis::Heavy),
+        },
+        name: Some(format!("{} {} {} {}", "L = ", l, "\\quad w = ", w)),
+    };
+    curves.push(curve);
+
+    // Second curve
+    let l = 1.1642;
+    let w = 0.5;
+    let (x, y) = g3m_trading_curve(x_values.clone(), w, l);
+    let curve = Curve {
+        x_coordinates: x,
+        y_coordinates: y,
+        design: CurveDesign {
+            color: Color::Purple,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Lines(LineEmphasis::Heavy),
+        },
+        name: Some(format!("{} {} {} {}", "L \\approx ", l, "\\quad w = ", w)),
+    };
+    curves.push(curve);
+
+    // Third curve
+    let l = 1.3554;
+    let w = 0.8;
+    let (x, y) = g3m_trading_curve(x_values.clone(), w, l);
+    let curve = Curve {
+        x_coordinates: x,
+        y_coordinates: y,
+        design: CurveDesign {
+            color: Color::Blue,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Lines(LineEmphasis::Heavy),
+        },
+        name: Some(format!("{} {} {} {}", "L \\approx ", l, "\\quad w = ", w)),
+    };
+    curves.push(curve);
+
+    // Reserves
+    let rx = 1.5;
+    let ry = 0.9036;
+    let point = Curve {
+        x_coordinates: vec![rx],
+        y_coordinates: vec![ry],
+        design: CurveDesign {
+            color: Color::Black,
+            color_slot: MAIN_COLOR_SLOT,
+            style: Style::Markers(MarkerEmphasis::Heavy),
+        },
+        name: Some(format!("{} {} {} {}", "R_X = ", rx, ", R_Y \\approx ", ry)),
+    };
+    curves.push(point);
+
+    // Build the plot's axes
+    let axes = Axes {
+        x_label: String::from("R_X"),
+        y_label: String::from("R_Y"),
+        bounds: (vec![0.0, 5.0], vec![0.0, 5.0]),
+    };
+    // plot
+    transparent_plot(Some(curves), None, axes, title, display);
+}
+
+#[allow(unused)]
+/// Plot RMM trading curve for multiple rescalings
+pub fn g3m_dfmm_cover(display: Display) {
+    let title = format!("{}", "$\\text{Dynamic Function Market Maker}$");
+
+    // Define the range of x values
+    let x_start = 0.01_f64;
+    let x_end = 5.0_f64;
+    let number_of_x_values = 10000;
+    let x_values = linspace(x_start, x_end, number_of_x_values).collect::<Vec<f64>>();
+    // println!("x-values: {:?}", x_values);
+
+    let mut curves = vec![];
+    let l = 1.0;
+
+    let w_values = linspace(0.1, 0.9, 10).collect::<Vec<f64>>();
+
+    for (idx, w) in w_values.into_iter().enumerate() {
+        let (x, y) = g3m_trading_curve(x_values.clone(), w, l);
+        let curve = Curve {
+            x_coordinates: x,
+            y_coordinates: y,
+            design: CurveDesign {
+                color: Color::Green,
+                color_slot: idx,
+                style: Style::Lines(LineEmphasis::Heavy),
+            },
+            name: None,
+        };
+        curves.push(curve);
+    }
+
+    // Build the plot's axes
+    let axes = Axes {
+        x_label: String::from(""),
+        y_label: String::from(""),
+        bounds: (vec![0.0, 5.0], vec![0.0, 5.0]),
+    };
+
+    // plot
+    transparent_plot(Some(curves), None, axes, title, display);
+}
+
+#[allow(unused)]
+pub fn liquidity_tracker(display: Display) {
+    let title = String::from("$\\text{RMM Liquidity Distribution}$");
+    // Define the relavant RMM-CC parameters with multiple taus
+    let strikes = linspace(1.0, 5.0, 10).collect::<Vec<f64>>();
+    let sigmas = linspace(0.15, 0.25, 10).collect::<Vec<f64>>();
+    let tau = 1.0;
+    // Create a list of prices that we will compute the reserves from
+    let price_start = 0.0_f64;
+    let price_end = 10.0_f64;
+    let number_of_prices = 1000;
+    let prices = linspace(price_start, price_end, number_of_prices).collect::<Vec<f64>>();
+    // Build the curves
+    let mut curves = vec![];
+    for (idx, (strike, sigma)) in strikes.into_iter().zip(sigmas.into_iter()).enumerate() {
+        let pdf_of_d_one = standard_gaussian_pdf(d_one(prices.clone(), strike, sigma, tau));
+        let temp = pdf_of_d_one
+            .iter()
+            .map(|output| output / (sigma * tau.sqrt()))
+            .collect::<Vec<f64>>();
+        let mut after_divide: Vec<f64> = Vec::new();
+        for (i, y_val) in temp.iter().enumerate() {
+            after_divide.push(y_val / prices[i]);
+        }
+
+        let curve = Curve {
+            x_coordinates: prices.clone(),
+            y_coordinates: after_divide,
+            design: CurveDesign {
+                color: Color::Green,
+                color_slot: idx,
+                style: Style::Lines(LineEmphasis::Heavy),
+            },
+            name: Some(format!(
+                "{} {:.2} {} {:.2}",
+                "K = ", strike, "\\quad \\sigma = ", sigma
+            )),
+        };
+        curves.push(curve);
+    }
+    // Build the plot's axes
+    let axes = Axes {
+        x_label: String::from("\\textrm{Price, }S"),
+        y_label: String::from("\\textrm{Depth}"),
+        bounds: (vec![price_start, price_end], vec![0.0, 3.0]),
+    };
+    // plot
+    transparent_plot(Some(curves), None, axes, title, display);
 }

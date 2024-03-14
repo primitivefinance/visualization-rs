@@ -6,11 +6,12 @@ use visualize::{design::DisplayMode, file_handler::*, plot::*};
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Global visualization variables
     let display = Display {
-        transparent: false,
+        transparent: true,
         mode: DisplayMode::Light,
         show: true,
     };
-    rmm_liquidity_distribution(display);
+
+    liquidity_tracker(display);
 
     Ok(())
 }
